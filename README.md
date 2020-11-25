@@ -29,5 +29,5 @@ Provides sophisticated and easy to handle candlestick chart data type in Go.
 
  1. Candles
  ```
- candles := chart.Candles
+ candles := chart.GetCandles()
  ```

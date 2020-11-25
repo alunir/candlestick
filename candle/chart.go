@@ -19,6 +19,18 @@ type Chart struct {
 	Clock            chan *Candle
 }
 
+func (chart *Chart) GetLastCandle() *Candle {
+	return chart.LastCandle
+}
+
+func (chart *Chart) GetCurrentCandle() *Candle {
+	return chart.CurrentCandle
+}
+
+func (chart *Chart) GetCandles() []*Candle {
+	return chart.Candles
+}
+
 func (chart *Chart) GetLastCandleClock() chan *Candle {
 	return chart.Clock
 }

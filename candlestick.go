@@ -16,6 +16,9 @@ type Candlestick interface {
 	GetLastCandleClock() chan *candle.Candle
 	AddTrade(ti time.Time, value float64, volume float64)
 	AddCandle(*candle.Candle)
+	GetLastCandle() *candle.Candle
+	GetCurrentCandle() *candle.Candle
+	GetCandles() []*candle.Candle
 	Serialized() []byte
 	Deserialized([]byte)
 	SetLastCandle(candle *candle.Candle)
