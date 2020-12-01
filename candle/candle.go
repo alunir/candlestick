@@ -88,3 +88,15 @@ func (candle *Candle) AddCandleWithBuySell(buysell BuySellType, value float64, v
 		}
 	}
 }
+
+func (candle *Candle) GetMap() map[string]interface{} {
+	return map[string]interface{}{
+		"count":  float64(candle.Count),
+		"open":   candle.Open,
+		"close":  candle.Close,
+		"high":   candle.High,
+		"low":    candle.Low,
+		"volume": candle.Volume,
+		"amount": candle.Amount, // can be zero
+	}
+}
