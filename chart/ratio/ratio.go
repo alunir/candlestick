@@ -27,16 +27,16 @@ func (chart *RatioChart) AddTrade(ti time.Time, price float64, volume float64) {
 func (chart *RatioChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 	askTotalSizes, bidTotalSizes := make([]float64, len(chart.Thresholds)), make([]float64, len(chart.Thresholds))
 	for i, s := range askSizes {
-		for _, threshold := range chart.Thresholds {
+		for j, threshold := range chart.Thresholds {
 			if askPrices[i] < askPrices[0]*(1.0+threshold) {
-				askTotalSizes[i] += s
+				askTotalSizes[j] += s
 			}
 		}
 	}
 	for i, s := range bidSizes {
-		for _, threshold := range chart.Thresholds {
+		for j, threshold := range chart.Thresholds {
 			if bidPrices[i] > bidPrices[0]*(1.0-threshold) {
-				bidTotalSizes[i] += s
+				bidTotalSizes[j] += s
 			}
 		}
 	}
