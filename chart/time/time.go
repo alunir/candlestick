@@ -66,3 +66,6 @@ func (chart *TimeChart) addCandle(candle *c.Candle) {
 		chart.EndTime = candle.Time
 	}
 }
+
+func (chart *TimeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
+}
