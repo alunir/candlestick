@@ -38,3 +38,7 @@ func (chart *CountChart) addTradeToCountCandle(ti time.Time, value float64, volu
 
 func (chart *CountChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
+
+func (chart *CountChart) GetChartInfo() map[string]interface{} {
+	return make(map[string]interface{})
+}

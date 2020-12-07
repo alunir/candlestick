@@ -69,3 +69,7 @@ func (chart *TimeChart) addCandle(candle *c.Candle) {
 
 func (chart *TimeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
+
+func (chart *TimeChart) GetChartInfo() map[string]interface{} {
+	return make(map[string]interface{})
+}

@@ -86,3 +86,7 @@ func (chart *AmountChart) addTradeToAmountCandle(ti time.Time, value float64, vo
 
 func (chart *AmountChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
+
+func (chart *AmountChart) GetChartInfo() map[string]interface{} {
+	return make(map[string]interface{})
+}

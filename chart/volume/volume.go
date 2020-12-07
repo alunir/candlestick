@@ -86,3 +86,7 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value float64, vo
 
 func (chart *VolumeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
+
+func (chart *VolumeChart) GetChartInfo() map[string]interface{} {
+	return make(map[string]interface{})
+}

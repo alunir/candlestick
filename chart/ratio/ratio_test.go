@@ -55,4 +55,22 @@ func TestRatioCandles(t *testing.T) {
 		t.Logf("Got wrong len: %v", len(chart.Candles))
 		t.Fail()
 	}
+
+	info := chart.GetChartInfo()
+	as := info["AskTotalSizes"].([]float64)
+	if !(as[0] == 55.0 && as[1] == 55.0) {
+		t.Logf("Got wrong AskTotalSizes val: %v", as)
+		t.Fail()
+	}
+	bs := info["BidTotalSizes"].([]float64)
+	if !(bs[0] == 44.0 && bs[1] == 44.0) {
+		t.Logf("Got wrong BidTotalSizes val: %v", bs)
+		t.Fail()
+	}
+	rs := info["Ratio"].([]float64)
+	if !(rs[0] == 0.25 && rs[1] == 0.25) {
+		t.Logf("Got wrong Ratios val: %v", rs)
+		t.Fail()
+	}
+
 }

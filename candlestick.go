@@ -21,6 +21,7 @@ type Candlestick interface {
 	GetLastCandle() *candle.Candle
 	GetCurrentCandle() *candle.Candle
 	GetCandles() []*candle.Candle
+	GetChartInfo() map[string]interface{}
 	Serialized() []byte
 	Deserialized([]byte)
 	SetLastCandle(candle *candle.Candle)
