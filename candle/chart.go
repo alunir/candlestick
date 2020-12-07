@@ -36,7 +36,7 @@ func (chart *Chart) GetLastCandleClock() chan *Candle {
 }
 
 func (chart *Chart) SetLastCandle(candle *Candle) {
-	if chart.CurrentCandle == nil {
+	if chart.CurrentCandle == nil && candle != nil {
 		chart.LastCandle = candle
 	} else {
 		chart.LastCandle = chart.CurrentCandle

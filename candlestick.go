@@ -2,6 +2,7 @@ package candlestick
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	candle "github.com/alunir/candlestick/candle"
@@ -146,9 +147,14 @@ func NewCandlestickChart(param *ChartParameters) Candlestick {
 			Buysell: candle.ALL,
 		}
 	case candle.RATIO:
-		threshold, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		thresholds_str := strings.Split(param.Resolution, ",")
+		var thresholds []float64
+		for _, s := range thresholds_str {
+			threshold, err := strconv.ParseFloat(s, 64)
+			if err != nil {
+				panic("Failed to parse resolution: " + s)
+			}
+			thresholds = append(thresholds, threshold)
 		}
 		return &ratio_chart.RatioChart{
 			Chart: candle.Chart{
@@ -157,7 +163,7 @@ func NewCandlestickChart(param *ChartParameters) Candlestick {
 				TimeSeries: map[time.Time]*candle.Candle{},
 				Clock:      make(chan *candle.Candle),
 			},
-			Threshold: threshold,
+			Thresholds: thresholds,
 		}
 	case candle.BUY_PRICE:
 		panic("not implemented yet")

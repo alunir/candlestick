@@ -41,19 +41,19 @@ func TestCountCandles(t *testing.T) {
 		t.Fail()
 	}
 
-	if !(c2.Count == 2 && c2.Volume == 3 && c2.Open == 3 && c2.Close == 13 &&
-		c2.High == 13 && c2.Low == 3) {
+	if !(c2.Count == 2 && c2.Volume == 6 && c2.Open == 3 && c2.Close == 12 &&
+		c2.High == 12 && c2.Low == 3) {
 		t.Logf("Got wrong c2 val: %v", c2)
 		t.Fail()
 	}
 
-	if !(c3.Count == 1 && c3.Volume == 5 && c3.Open == 12 && c3.Close == 12 &&
-		c3.High == 12 && c3.Low == 12) {
+	if !(c3.Count == 2 && c3.Volume == 8 && c3.Open == 13 && c3.Close == 15 &&
+		c3.High == 15 && c3.Low == 13) {
 		t.Logf("Got wrong c3 val: %v", c3)
 		t.Fail()
 	}
 
-	if len(chart.Candles) != 4 {
+	if len(chart.Candles) != 3 {
 		t.Logf("Got wrong len: %v", len(chart.Candles))
 		t.Fail()
 	}
@@ -65,15 +65,15 @@ func TestCountCandles(t *testing.T) {
 	chart.AddTrade(start.Add(370*time.Second), 54, 36)
 
 	var c4 = chart.Candles[3]
-	if !(c4.Count == 1 && c4.Volume == 6 && c4.Open == 3 && c4.Close == 3 &&
-		c4.High == 3 && c4.Low == 3) {
+	if !(c4.Count == 1 && c4.Volume == 36 && c4.Open == 54 && c4.Close == 54 &&
+		c4.High == 54 && c4.Low == 54) {
 		t.Logf("Got wrong c4 val: %v", c4)
 		t.Fail()
 	}
 
 	var c5 = chart.Candles[0]
-	if !(c5.Count == 2 && c5.Volume == 3 && c5.Open == 3 && c5.Close == 13 &&
-		c5.High == 13 && c5.Low == 3) {
+	if !(c5.Count == 2 && c5.Volume == 6 && c5.Open == 3 && c5.Close == 12 &&
+		c5.High == 12 && c5.Low == 3) {
 		t.Logf("Got wrong c5 val: %v", c5)
 		t.Fail()
 	}

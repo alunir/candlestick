@@ -21,9 +21,9 @@ func (chart *CountChart) AddTrade(ti time.Time, value float64, volume float64) {
 }
 
 func (chart *CountChart) addTradeToCountCandle(ti time.Time, value float64, volume float64) {
-	if chart.LastCandle != nil {
-		if int64(chart.LastCandle.Stack) < chart.Chunk-1 {
-			chart.LastCandle.AddCandleWithBuySell(chart.Buysell, value, volume, +1.0)
+	if chart.CurrentCandle != nil {
+		if int64(chart.CurrentCandle.Stack) < chart.Chunk-1 {
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, +1.0)
 			chart.CurrentCandleNew = false
 		} else {
 			candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, 0.0) // reset the counter
@@ -32,7 +32,6 @@ func (chart *CountChart) addTradeToCountCandle(ti time.Time, value float64, volu
 		}
 	} else {
 		candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, 0.0)
-		chart.SetLastCandle(candle)
 		chart.AddCandle(candle)
 	}
 }

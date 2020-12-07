@@ -5,15 +5,16 @@ import (
 	"time"
 )
 
+// Time, OHLCV,A,C
 type Candle struct {
-	Count  int
 	Time   time.Time
 	Open   float64
-	Close  float64
 	High   float64
 	Low    float64
+	Close  float64
 	Volume float64
 	Amount float64
+	Count  int
 	Stack  float64 // if this touch the resolution, add a new candle.
 }
 
