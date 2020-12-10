@@ -16,8 +16,10 @@ type ChartInfo struct {
 
 type RatioChart struct {
 	c.Chart
-	Thresholds []float64
-	LastSign   bool
+	Thresholds       []float64
+	PositiveResidue  float64
+	NegativeResidue  float64
+	ResidueThreshold float64
 	ChartInfo
 }
 
@@ -54,14 +56,23 @@ func (chart *RatioChart) AddLv2DataCallback(ti time.Time, askPrices []float64, a
 			}
 		}
 	}
+	var diffRatio []float64
 	for i, as := range chart.AskTotalSizes {
-		chart.ChartInfo.Ratio[i] = as/chart.ChartInfo.BidTotalSizes[i] - 1.0
+		r := math.Log(as / chart.ChartInfo.BidTotalSizes[i])
+		diffRatio = append(diffRatio, r-chart.ChartInfo.Ratio[i])
+		chart.ChartInfo.Ratio[i] = r
 	}
 
-	if math.Signbit(chart.ChartInfo.Ratio[0]) != chart.LastSign {
+	chart.PositiveResidue += math.Max(0, chart.PositiveResidue+diffRatio[0])
+	chart.NegativeResidue += math.Min(0, chart.NegativeResidue+diffRatio[0])
+	if chart.PositiveResidue > chart.ResidueThreshold {
+		chart.PositiveResidue = 0.0
 		chart.SetLastCandle(nil)
 		chart.CurrentCandle = nil
-		chart.LastSign = math.Signbit(chart.ChartInfo.Ratio[0])
+	} else if chart.NegativeResidue < -chart.ResidueThreshold {
+		chart.NegativeResidue = 0.0
+		chart.SetLastCandle(nil)
+		chart.CurrentCandle = nil
 	}
 }
 

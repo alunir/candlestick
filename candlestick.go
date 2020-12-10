@@ -158,6 +158,9 @@ func NewCandlestickChart(param *ChartParameters) Candlestick {
 			}
 			thresholds = append(thresholds, threshold)
 		}
+		if param.ResidueThreshold <= 0.0 {
+			panic("ResidueThreshold is zero or negative. This should be positive.")
+		}
 		return &ratio_chart.RatioChart{
 			Chart: candle.Chart{
 				CandleNum:  param.CandleNum,
@@ -165,7 +168,8 @@ func NewCandlestickChart(param *ChartParameters) Candlestick {
 				TimeSeries: map[time.Time]*candle.Candle{},
 				Clock:      make(chan *candle.Candle),
 			},
-			Thresholds: thresholds,
+			Thresholds:       thresholds,
+			ResidueThreshold: param.ResidueThreshold,
 		}
 	case candle.BUY_PRICE:
 		panic("not implemented yet")
