@@ -44,6 +44,7 @@ func TestRatioCandles(t *testing.T) {
 	chart.AddLv2DataCallback(start.Add(140*time.Second), []float64{100.0, 101.0, 102.0}, []float64{125, 123, 211}, []float64{99.0, 98.0, 97.0}, []float64{2, 1, 1})
 	chart.AddTrade(start.Add(150*time.Second), 15, 6)
 	var c3 = chart.Candles[2]
+	var c4 = chart.Candles[3]
 
 	if !(c1.Open == 5 && c1.High == 25 && c1.Low == 3 && c1.Close == 16 && c1.Volume == 17 && c1.Amount == 226 && c1.Count == 7) {
 		t.Logf("Got wrong c1 val: %v", c1)
@@ -55,12 +56,17 @@ func TestRatioCandles(t *testing.T) {
 		t.Fail()
 	}
 
-	if !(c3.Open == 12 && c3.High == 15 && c3.Low == 12 && c3.Close == 15 && c3.Volume == 13 && c3.Amount == 176 && c3.Count == 3) {
+	if !(c3.Open == 12 && c3.High == 13 && c3.Low == 12 && c3.Close == 13 && c3.Volume == 7 && c3.Amount == 86 && c3.Count == 2) {
 		t.Logf("Got wrong c3 val: %v", c3)
 		t.Fail()
 	}
 
-	if len(chart.Candles) != 3 {
+	if !(c4.Open == 15 && c4.High == 15 && c4.Low == 15 && c4.Close == 15 && c4.Volume == 6 && c4.Amount == 90 && c4.Count == 1) {
+		t.Logf("Got wrong c4 val: %v", c4)
+		t.Fail()
+	}
+
+	if len(chart.Candles) != 4 {
 		t.Logf("Got wrong len: %v", len(chart.Candles))
 		t.Fail()
 	}
