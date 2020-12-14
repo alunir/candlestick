@@ -66,16 +66,16 @@ func (chart *RatioChart) AddLv2DataCallback(ti time.Time, askPrices []float64, a
 
 	chart.PositiveResidue += math.Max(0, chart.PositiveResidue+diffRatio[0])
 	chart.NegativeResidue += math.Min(0, chart.NegativeResidue+diffRatio[0])
-	for chart.PositiveResidue > chart.ResidueThreshold {
-		chart.PositiveResidue = chart.PositiveResidue - chart.ResidueThreshold
+	if chart.PositiveResidue > chart.ResidueThreshold {
+		chart.PositiveResidue = math.Mod(chart.PositiveResidue, chart.ResidueThreshold)
 		if !chart.positiveResidueSide {
 			chart.SetLastCandle(nil)
 			chart.CurrentCandle = nil
 		}
 		chart.positiveResidueSide = true
 	}
-	for chart.NegativeResidue < -chart.ResidueThreshold {
-		chart.NegativeResidue = chart.NegativeResidue - (-chart.ResidueThreshold)
+	if chart.NegativeResidue < -chart.ResidueThreshold {
+		chart.NegativeResidue = math.Mod(chart.NegativeResidue, -chart.ResidueThreshold)
 		if chart.positiveResidueSide {
 			chart.SetLastCandle(nil)
 			chart.CurrentCandle = nil

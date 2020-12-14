@@ -36,10 +36,20 @@ func (chart *Chart) GetLastCandleClock() chan *Candle {
 }
 
 func (chart *Chart) SetLastCandle(candle *Candle) {
-	if chart.CurrentCandle == nil && candle != nil {
-		chart.LastCandle = candle
-	} else {
+	// (candle, CurrentCandle) -> LastCandle
+	// (nil, nil) -> no update
+	// (nil, not nil) -> CurrentCandle
+	// (not nil, nil) -> candle
+	// (not nil, not nil) -> CurrentCandle
+	if chart.CurrentCandle != nil {
 		chart.LastCandle = chart.CurrentCandle
+	} else {
+		if candle != nil {
+			chart.LastCandle = candle
+		} else {
+			// no update
+			return
+		}
 	}
 	select {
 	case chart.Clock <- chart.LastCandle:
