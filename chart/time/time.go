@@ -50,23 +50,6 @@ func (chart *TimeChart) backfill(x time.Time, value float64) {
 	}
 }
 
-func (chart *TimeChart) addCandle(candle *c.Candle) {
-	chart.CurrentCandle = candle
-	chart.CurrentCandleNew = true
-
-	if len(chart.Candles) < chart.CandleNum {
-		chart.Candles = append(chart.Candles, candle)
-	} else {
-		chart.Candles = append(chart.Candles[1:chart.CandleNum:chart.CandleNum], candle)
-	}
-
-	if candle.Time.Before(chart.StartTime) {
-		chart.StartTime = candle.Time
-	} else if candle.Time.After(chart.EndTime) {
-		chart.EndTime = candle.Time
-	}
-}
-
 func (chart *TimeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
 

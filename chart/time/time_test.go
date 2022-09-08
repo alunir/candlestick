@@ -19,7 +19,7 @@ func TestTimeCandles(t *testing.T) {
 		},
 		Resolution: time.Minute,
 	}
-	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC)
+	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(chart.Resolution)
 
 	chart.AddTrade(start, 5, 1)
 	chart.AddTrade(start.Add(5*time.Second), 25, 1)
@@ -27,12 +27,12 @@ func TestTimeCandles(t *testing.T) {
 	var c1 = chart.Candles[0]
 
 	chart.AddTrade(start.Add(60*time.Second), 12, 5)
-	chart.AddTrade(start.Add(114*time.Second), 13, 2)
+	chart.AddTrade(start.Add(119*time.Second), 13, 2)
 	var c2 = chart.Candles[1]
 
 	// Intentionally empty data series included here, to test flat candles
-	chart.AddTrade(start.Add(235*time.Second), 15, 1)
-	chart.AddTrade(start.Add(294*time.Second), 15, 5)
+	chart.AddTrade(start.Add(240*time.Second), 15, 1)
+	chart.AddTrade(start.Add(299*time.Second), 15, 5)
 	var c3 = chart.Candles[2]
 	var c4 = chart.Candles[3]
 
