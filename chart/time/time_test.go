@@ -27,11 +27,12 @@ func TestTimeCandles(t *testing.T) {
 	var c1 = chart.Candles[0]
 
 	chart.AddTrade(start.Add(60*time.Second), 12, 5)
-	chart.AddTrade(start.Add(70*time.Second), 13, 2)
+	chart.AddTrade(start.Add(114*time.Second), 13, 2)
 	var c2 = chart.Candles[1]
 
 	// Intentionally empty data series included here, to test flat candles
-	chart.AddTrade(start.Add(240*time.Second), 15, 6)
+	chart.AddTrade(start.Add(235*time.Second), 15, 1)
+	chart.AddTrade(start.Add(294*time.Second), 15, 5)
 	var c3 = chart.Candles[2]
 	var c4 = chart.Candles[3]
 
