@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/gob"
 	"time"
+
+	"github.com/tk42/victolinux/threadsafe"
 )
 
 type Chart struct {
-	Candles []*Candle
-	// Resolution       string // TimeCandles: time.Duration(Nanoseconds, int64), VolumeCandles: float64, AmountCandles: float64, CountCandles: int
-	TimeSeries       map[time.Time]*Candle
+	Candles          []*Candle
+	TimeSeries       threadsafe.ThreadsafeMap[time.Time, *Candle]
 	LastCandle       *Candle
 	CurrentCandle    *Candle
 	CurrentCandleNew bool
@@ -29,7 +30,7 @@ func NewChart(candleNum int) *Chart {
 	return &Chart{
 		CandleNum:  candleNum,
 		Candles:    make([]*Candle, 0, candleNum),
-		TimeSeries: map[time.Time]*Candle{},
+		TimeSeries: threadsafe.ThreadsafeMap[time.Time, *Candle]{},
 		in:         in,
 		out:        out,
 		buffer:     buffer,
@@ -65,7 +66,8 @@ func (chart *Chart) SetLastCandle(candle *Candle) {
 			chart.LastCandle = candle
 		} else {
 			// no update
-			return
+			panic("SetLastCandle: (candle, CurrentCandle) -> LastCandle")
+			// return
 		}
 	}
 	chart.in <- chart.LastCandle

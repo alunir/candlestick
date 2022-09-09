@@ -18,9 +18,9 @@ func (chart *TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
 	volume := decimal.NewFromFloat(vol).Abs()
 
 	var x = ti.Truncate(chart.Resolution)
-	var candle = chart.TimeSeries[x]
+	candle, ok := chart.TimeSeries.Load(x)
 
-	if candle != nil {
+	if ok {
 		candle.AddCandleWithBuySell(c.ALL, value, volume, decimal.Zero) // MEMO: no meaning for stack
 		chart.CurrentCandleNew = false
 	} else {
@@ -30,7 +30,7 @@ func (chart *TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
 			chart.backfill(x, chart.LastCandle.Close)
 		}
 		chart.AddCandle(candle)
-		chart.TimeSeries[candle.Time] = candle
+		chart.TimeSeries.Store(candle.Time, candle)
 	}
 }
 
@@ -39,16 +39,11 @@ func (chart *TimeChart) backfill(x time.Time, value decimal.Decimal) {
 	var tmp []*c.Candle
 
 	for ti := x.Add(-chart.Resolution); !ti.Equal(chart.LastCandle.Time); ti = ti.Add(-chart.Resolution) {
-		if _, ok := chart.TimeSeries[ti]; !ok {
+		if _, ok := chart.TimeSeries.Load(ti); !ok {
 			flatCandle = c.NewCandle(0, ti, value, decimal.Zero, decimal.Zero)
-			// if len(chart.Candles) < chart.CandleNum {
-			// 	chart.Candles = append(chart.Candles, flatCandle)
-			// } else {
-			// 	chart.Candles = append(chart.Candles[1:chart.CandleNum:chart.CandleNum], flatCandle)
-			// }
 			tmp = append(tmp, flatCandle)
 
-			chart.TimeSeries[x] = flatCandle
+			chart.TimeSeries.Store(x, flatCandle)
 		}
 	}
 	ReverseSlice(tmp)
