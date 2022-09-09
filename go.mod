@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/fatih/structs v1.1.0
+	github.com/shopspring/decimal v1.3.1
 	go.uber.org/zap v1.16.0
 )
 

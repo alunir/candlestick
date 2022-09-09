@@ -1,7 +1,6 @@
 package time
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -9,14 +8,9 @@ import (
 )
 
 func TestTimeCandles(t *testing.T) {
-	candleNum := 4
+	candleNum := 5
 	var chart = &TimeChart{
-		Chart: candle.Chart{
-			CandleNum:  candleNum,
-			Candles:    make([]*candle.Candle, 0, candleNum),
-			TimeSeries: map[time.Time]*candle.Candle{},
-			Clock:      make(chan *candle.Candle),
-		},
+		Chart:      *candle.NewChart(candleNum),
 		Resolution: time.Minute,
 	}
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(chart.Resolution)
@@ -24,74 +18,85 @@ func TestTimeCandles(t *testing.T) {
 	chart.AddTrade(start, 5, 1)
 	chart.AddTrade(start.Add(5*time.Second), 25, 1)
 	chart.AddTrade(start.Add(25*time.Second), 3, 1)
-	var c1 = chart.Candles[0]
 
 	chart.AddTrade(start.Add(60*time.Second), 12, 5)
 	chart.AddTrade(start.Add(119*time.Second), 13, 2)
-	var c2 = chart.Candles[1]
+
+	// 120-179, 180-239: No trade.
 
 	// Intentionally empty data series included here, to test flat candles
 	chart.AddTrade(start.Add(240*time.Second), 15, 1)
 	chart.AddTrade(start.Add(299*time.Second), 15, 5)
-	var c3 = chart.Candles[2]
-	var c4 = chart.Candles[3]
 
-	if !(c1.Volume == 3 && c1.Open == 5 && c1.Close == 3 &&
-		c1.High == 25 && c1.Low == 3) {
-		t.Logf("Got wrong val: %v", c1)
-		t.Fail()
-	}
-
-	if !(c2.Volume == 7 && c2.Open == 12 && c2.Close == 13 &&
-		c2.High == 13 && c2.Low == 12) {
-		t.Logf("Got wrong val: %v", c2)
-		t.Fail()
-	}
-
-	if !(c3.Volume == 0 && c3.Open == 13 && c3.Close == 13 &&
-		c3.High == 13 && c3.Low == 13) {
-		t.Logf("Got wrong val: %v", c3)
-		t.Fail()
-	}
-
-	if !(c4.Volume == 6 && c4.Open == 15 && c4.Close == 15 &&
-		c4.High == 15 && c4.Low == 15) {
-		t.Logf("Got wrong val: %v", c4)
-		t.Fail()
-	}
-
-	if !(chart.LastCandle.Volume == 7 && chart.LastCandle.Open == 12 && chart.LastCandle.Close == 13 &&
-		chart.LastCandle.High == 13 && chart.LastCandle.Low == 12) {
-		t.Logf("Got wrong chart.LastCandle val: %v", chart.LastCandle)
-		t.Fail()
-	}
-
-	if !(chart.CurrentCandle.Volume == 6 && chart.CurrentCandle.Open == 15 && chart.CurrentCandle.Close == 15 &&
-		chart.CurrentCandle.High == 15 && chart.CurrentCandle.Low == 15) {
-		t.Logf("Got wrong chart.CurrentCandle val: %v", chart.CurrentCandle)
-		t.Fail()
-	}
-
-	if len(chart.Candles) != 4 {
-		t.Logf("Got wrong len: %v", len(chart.Candles))
-		t.Fail()
-	}
+	// for debug
+	// &{2009-11-10 23:30:00 +0000 UTC 5 25 3 3 3 33 3 0}
+	// &{2009-11-10 23:31:00 +0000 UTC 12 13 12 13 7 86 2 0}
+	// &{2009-11-10 23:32:00 +0000 UTC 13 13 13 13 0 0 0 0}
+	// &{2009-11-10 23:33:00 +0000 UTC 13 13 13 13 0 0 0 0}
+	// &{2009-11-10 23:34:00 +0000 UTC 15 15 15 15 6 90 2 0}
+	// fmt.Printf("%v. Got cap: %v len: %v\n", chart.Candles, cap(chart.Candles), len(chart.Candles))
+	// for _, c := range chart.Candles {
+	// 	fmt.Printf("%v\n", c)
+	// }
 
 	// Candles should be like a queue
-	fmt.Printf("Got cap: %v len: %v\n", cap(chart.Candles), len(chart.Candles))
-	chart.AddTrade(start.Add(300*time.Second), 10, 2)
-	chart.AddTrade(start.Add(310*time.Second), 3, 6)
-	chart.AddTrade(start.Add(370*time.Second), 54, 36)
-
-	var c5 = chart.Candles[0]
-	if !(c5.Volume == 0 && c5.Open == 13 && c5.Close == 13 &&
-		c5.High == 13 && c5.Low == 13) {
-		t.Logf("Got wrong val: %v", c5)
+	if len(chart.Candles) != candleNum {
+		t.Logf("Candles are not fulfilled. Size is %v", len(chart.Candles))
 		t.Fail()
 	}
-	fmt.Printf("Got cap: %v len: %v\n", cap(chart.Candles), len(chart.Candles))
-	if len(chart.Candles) != 4 {
-		t.Logf("Got wrong len: %v", len(chart.Candles))
+
+	if err := chart.Candles[0].AssertOhlcv(t, start, 5, 25, 3, 3, 3, 3); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	if err := chart.Candles[1].AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	if err := chart.Candles[2].AssertOhlcv(t, start.Add(2*chart.Resolution), 13, 13, 13, 13, 0, 0); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	if err := chart.Candles[3].AssertOhlcv(t, start.Add(3*chart.Resolution), 13, 13, 13, 13, 0, 0); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	if err := chart.Candles[4].AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	// This is the Last candle. "Last" means "last traded except current candle"
+	if err := chart.LastCandle.AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
+		t.Logf("test failed. %v", err)
+		t.Fail()
+	}
+
+	chart.AddTrade(start.Add(300*time.Second), 10, 2)
+	chart.AddTrade(start.Add(310*time.Second), 3, 6)
+
+	// for debug
+	// &{2009-11-10 23:31:00 +0000 UTC 12 13 12 13 7 86 2 0}
+	// &{2009-11-10 23:32:00 +0000 UTC 13 13 13 13 0 0 0 0}
+	// &{2009-11-10 23:33:00 +0000 UTC 13 13 13 13 0 0 0 0}
+	// &{2009-11-10 23:34:00 +0000 UTC 15 15 15 15 6 90 2 0}
+	// &{2009-11-10 23:35:00 +0000 UTC 10 10 3 3 8 38 2 0}
+	// fmt.Printf("%v. Got cap: %v len: %v\n", chart.Candles, cap(chart.Candles), len(chart.Candles))
+	// for _, c := range chart.Candles {
+	// 	fmt.Printf("%v\n", c)
+	// }
+
+	if err := chart.Candles[0].AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 }

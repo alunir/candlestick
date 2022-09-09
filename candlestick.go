@@ -1,16 +1,14 @@
 package candlestick
 
 import (
-	"strconv"
-	"strings"
 	"time"
 
 	candle "github.com/alunir/candlestick/candle"
 	amount_chart "github.com/alunir/candlestick/chart/amount"
 	count_chart "github.com/alunir/candlestick/chart/count"
-	ratio_chart "github.com/alunir/candlestick/chart/ratio"
 	time_chart "github.com/alunir/candlestick/chart/time"
 	volume_chart "github.com/alunir/candlestick/chart/volume"
+	"github.com/shopspring/decimal"
 )
 
 type Candlestick interface {
@@ -27,150 +25,103 @@ type Candlestick interface {
 	SetLastCandle(candle *candle.Candle)
 }
 
-func NewCandlestickChart(param *ChartParameters) Candlestick {
+func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParameters[T]) Candlestick {
+	chart := *candle.NewChart(param.CandleNum)
 	switch param.mode {
 	case candle.TIME:
-		resolution, err := time.ParseDuration(param.Resolution)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(time.Duration); !ok {
+			panic("Resolution must be time.Duration")
 		}
 		return &time_chart.TimeChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Resolution: resolution,
+			Chart:      chart,
+			Resolution: time.Duration(param.Resolution),
 		}
 	case candle.AMOUNT:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &amount_chart.AmountChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.ALL,
 		}
 	case candle.BUY_AMOUNT:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &amount_chart.AmountChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.BUY,
 		}
 	case candle.SELL_AMOUNT:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &amount_chart.AmountChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.SELL,
 		}
 	case candle.VOLUME:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &volume_chart.VolumeChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.ALL,
 		}
 	case candle.BUY_VOLUME:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &volume_chart.VolumeChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.BUY,
 		}
 	case candle.SELL_VOLUME:
-		chunk, err := strconv.ParseFloat(param.Resolution, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(float64); !ok {
+			panic("Resolution must be float64")
 		}
 		return &volume_chart.VolumeChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.SELL,
 		}
 	case candle.COUNT:
-		chunk, err := strconv.ParseInt(param.Resolution, 10, 64)
-		if err != nil {
-			panic("Failed to parse resolution")
+		if _, ok := any(param.Resolution).(int64); !ok {
+			panic("Resolution must be int64")
 		}
 		return &count_chart.CountChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Chunk:   chunk,
+			Chart:   chart,
+			Chunk:   int64(param.Resolution),
 			Buysell: candle.ALL,
 		}
-	case candle.RATIO:
-		thresholds_str := strings.Split(param.Resolution, ",")
-		var thresholds []float64
-		for _, s := range thresholds_str {
-			threshold, err := strconv.ParseFloat(s, 64)
-			if err != nil {
-				panic("Failed to parse resolution: " + s)
-			}
-			thresholds = append(thresholds, threshold)
-		}
-		if param.ResidueThreshold <= 0.0 {
-			panic("ResidueThreshold is zero or negative. This should be positive.")
-		}
-		return &ratio_chart.RatioChart{
-			Chart: candle.Chart{
-				CandleNum:  param.CandleNum,
-				Candles:    make([]*candle.Candle, 0, param.CandleNum),
-				TimeSeries: map[time.Time]*candle.Candle{},
-				Clock:      make(chan *candle.Candle),
-			},
-			Thresholds:       thresholds,
-			ResidueThreshold: param.ResidueThreshold,
-		}
+	// case candle.RATIO:
+	// 	thresholds_str := strings.Split(param.Resolution, ",")
+	// 	var thresholds []float64
+	// 	for _, s := range thresholds_str {
+	// 		threshold, err := strconv.ParseFloat(s, 64)
+	// 		if err != nil {
+	// 			panic("Failed to parse resolution: " + s)
+	// 		}
+	// 		thresholds = append(thresholds, threshold)
+	// 	}
+	// 	if param.ResidueThreshold <= 0.0 {
+	// 		panic("ResidueThreshold is zero or negative. This should be positive.")
+	// 	}
+	// 	return &ratio_chart.RatioChart{
+	// 		Chart: candle.Chart{
+	// 			CandleNum:  param.CandleNum,
+	// 			Candles:    make([]*candle.Candle, 0, param.CandleNum),
+	// 			TimeSeries: map[time.Time]*candle.Candle{},
+	// 			Clock:      make(chan *candle.Candle),
+	// 		},
+	// 		Thresholds:       thresholds,
+	// 		ResidueThreshold: param.ResidueThreshold,
+	// 	}
 	case candle.BUY_PRICE:
 		panic("not implemented yet")
 	case candle.SELL_PRICE:

@@ -16,7 +16,24 @@ type Chart struct {
 	StartTime        time.Time
 	EndTime          time.Time
 	CandleNum        int
-	Clock            chan *Candle
+	in               chan *Candle
+	out              chan *Candle
+	buffer           *RingBuffer[*Candle]
+}
+
+func NewChart(candleNum int) *Chart {
+	in := make(chan *Candle)
+	out := make(chan *Candle, candleNum)
+	buffer := NewRingBuffer(in, out)
+	go buffer.Run()
+	return &Chart{
+		CandleNum:  candleNum,
+		Candles:    make([]*Candle, 0, candleNum),
+		TimeSeries: map[time.Time]*Candle{},
+		in:         in,
+		out:        out,
+		buffer:     buffer,
+	}
 }
 
 func (chart *Chart) GetLastCandle() *Candle {
@@ -32,7 +49,7 @@ func (chart *Chart) GetCandles() []*Candle {
 }
 
 func (chart *Chart) GetLastCandleClock() chan *Candle {
-	return chart.Clock
+	return chart.out
 }
 
 func (chart *Chart) SetLastCandle(candle *Candle) {
@@ -51,16 +68,14 @@ func (chart *Chart) SetLastCandle(candle *Candle) {
 			return
 		}
 	}
-	select {
-	case chart.Clock <- chart.LastCandle:
-	default:
-	}
+	chart.in <- chart.LastCandle
 }
 
 func (chart *Chart) AddCandle(candle *Candle) {
 	chart.CurrentCandle = candle
 	chart.CurrentCandleNew = true
 
+	// Need?
 	if len(chart.Candles) < chart.CandleNum {
 		chart.Candles = append(chart.Candles, candle)
 	} else {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	c "github.com/alunir/candlestick/candle"
+	"github.com/shopspring/decimal"
 )
 
 type CountChart struct {
@@ -17,21 +18,21 @@ func (chart *CountChart) AddTrade(ti time.Time, value float64, volume float64) {
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
-	chart.addTradeToCountCandle(ti, value, volume)
+	chart.addTradeToCountCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart *CountChart) addTradeToCountCandle(ti time.Time, value float64, volume float64) {
+func (chart *CountChart) addTradeToCountCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
 	if chart.CurrentCandle != nil {
-		if int64(chart.CurrentCandle.Stack) < chart.Chunk-1 {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, +1.0)
+		if chart.CurrentCandle.Stack.IntPart() < chart.Chunk-1 {
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, decimal.NewFromInt(1))
 			chart.CurrentCandleNew = false
 		} else {
-			candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, 0.0) // reset the counter
+			candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, decimal.Zero) // reset the counter
 			chart.SetLastCandle(candle)
 			chart.AddCandle(candle)
 		}
 	} else {
-		candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, 0.0)
+		candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, decimal.Zero)
 		chart.AddCandle(candle)
 	}
 }

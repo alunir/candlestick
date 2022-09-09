@@ -3,36 +3,37 @@ package candlestick
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	c "github.com/alunir/candlestick/candle"
 	"github.com/fatih/structs"
 	"go.uber.org/zap/zapcore"
 )
 
-type ChartParameters struct {
+type ChartParameters[T time.Duration | float64 | int64] struct {
 	mode             c.ChartMode
 	CandleNum        int
-	Resolution       string
+	Resolution       T
 	ResidueThreshold float64
 }
 
-type ParameterOption func(*ChartParameters)
+type ParameterOption[T time.Duration | float64 | int64] func(*ChartParameters[T])
 
-func Resolution(resol string) ParameterOption {
-	return func(op *ChartParameters) {
-		op.Resolution = strings.Replace(resol, "\"", "", -1)
+func Resolution[T time.Duration | float64 | int64](resolution T) ParameterOption[T] {
+	return func(op *ChartParameters[T]) {
+		op.Resolution = resolution
 	}
 }
 
-func ResidueThreshold(f float64) ParameterOption {
-	return func(op *ChartParameters) {
+func ResidueThreshold[T time.Duration | float64 | int64](f float64) ParameterOption[T] {
+	return func(op *ChartParameters[T]) {
 		op.ResidueThreshold = f
 	}
 }
 
-func ChartParameter(model string, resolution string, candleNum int, ops ...ParameterOption) *ChartParameters {
-	params := ChartParameters{
-		mode:       c.ChartMode{Value: strings.ToUpper(model)},
+func ChartParameter[T time.Duration | float64 | int64](model string, resolution T, candleNum int, ops ...ParameterOption[T]) *ChartParameters[T] {
+	params := ChartParameters[T]{
+		mode:       c.ChartMode(strings.ToUpper(model)),
 		Resolution: resolution,
 		CandleNum:  candleNum,
 	}
@@ -42,7 +43,7 @@ func ChartParameter(model string, resolution string, candleNum int, ops ...Param
 	return &params
 }
 
-func (cp ChartParameters) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (cp ChartParameters[T]) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	for k, v := range structs.New(cp).Map() {
 		enc.AddString(k, fmt.Sprint(v))
 	}

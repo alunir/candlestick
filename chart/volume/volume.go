@@ -5,11 +5,12 @@ import (
 	"time"
 
 	c "github.com/alunir/candlestick/candle"
+	"github.com/shopspring/decimal"
 )
 
 type VolumeChart struct {
 	c.Chart
-	Chunk   float64
+	Chunk   decimal.Decimal
 	Buysell c.BuySellType
 }
 
@@ -17,21 +18,19 @@ func (chart *VolumeChart) AddTrade(ti time.Time, value float64, volume float64) 
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
-	chart.addTradeToVolumeCandle(ti, value, volume)
+	chart.addTradeToVolumeCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value float64, volume float64) {
-	currentStack := 0.0
+func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
+	currentStack := decimal.Zero
 	if chart.CurrentCandle != nil {
 		currentStack = chart.CurrentCandle.Stack
 	}
-	diffStack := math.Abs(volume)
-	newStack := currentStack + diffStack
+	diffStack := volume.Abs()
+	newStack := currentStack.Add(diffStack)
+	chunknum, remain := newStack.QuoRem(chart.Chunk, 0)
 
-	remain := math.Mod(newStack, chart.Chunk)
-	chunknum := (newStack - remain) / chart.Chunk
-
-	if chunknum == 0 && remain == 0.0 {
+	if chunknum.IsZero() && remain.IsZero() {
 		// <--------------chunk------------------->
 		// |------------------|-------------------|
 		// <--Current.stack-->|<----diffStack----->
@@ -42,7 +41,7 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value float64, vo
 		} else {
 			panic("No need to addTradeToCandle")
 		}
-	} else if chunknum == 0.0 {
+	} else if chunknum.IsZero() {
 		// <--------------chunk------------------->
 		// |------------------|-------------------|
 		// <--Current.stack-->|<--diffStack-->
@@ -52,16 +51,16 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value float64, vo
 		} else {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, diffStack))
 		}
-	} else if remain == 0.0 {
+	} else if remain.IsZero() {
 		// <--------------chunk-------------------><--------------chunk------------------->
 		// |------------------|-------------------|---------------------------------------|
 		// <--Current.stack-->|<--------------------diffStack----------------------------->
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk-currentStack, chart.Chunk-currentStack)
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack), chart.Chunk.Sub(currentStack))
 			chart.SetLastCandle(chart.CurrentCandle)
-			chunknum -= 1.0
+			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
-		for i := 0; i < int(chunknum); i++ {
+		for i := 0; i < int(chunknum.IntPart()); i++ {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk, chart.Chunk))
 			chart.SetLastCandle(chart.CurrentCandle)
 		}
@@ -71,17 +70,16 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value float64, vo
 		// |------------------|-------------------|---------------------------------------|
 		// <--Current.stack-->|<------------diffStack------------------>
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk-currentStack, chart.Chunk-currentStack)
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack), chart.Chunk.Sub(currentStack))
 			chart.SetLastCandle(chart.CurrentCandle)
-			chunknum -= 1.0
+			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
-		for i := 0; i < int(chunknum); i++ {
+		for i := 0; i < int(chunknum.IntPart()); i++ {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk, chart.Chunk))
 			chart.SetLastCandle(chart.CurrentCandle)
 		}
 		chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, remain, remain))
 	}
-	return
 }
 
 func (chart *VolumeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
