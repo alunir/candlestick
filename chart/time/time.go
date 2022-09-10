@@ -6,6 +6,7 @@ import (
 
 	c "github.com/alunir/candlestick/candle"
 	"github.com/shopspring/decimal"
+	"github.com/tk42/victolinux/threadsafe"
 )
 
 type TimeChart struct {
@@ -30,7 +31,8 @@ func (chart *TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
 			chart.backfill(x, chart.LastCandle.Close)
 		}
 		chart.AddCandle(candle)
-		chart.TimeSeries.Store(candle.Time, candle)
+		chart.TimeSeries = threadsafe.ThreadsafeMap[time.Time, *c.Candle]{}
+		chart.TimeSeries.Store(x, candle)
 	}
 }
 
@@ -42,8 +44,7 @@ func (chart *TimeChart) backfill(x time.Time, value decimal.Decimal) {
 		if _, ok := chart.TimeSeries.Load(ti); !ok {
 			flatCandle = c.NewCandle(0, ti, value, decimal.Zero, decimal.Zero)
 			tmp = append(tmp, flatCandle)
-
-			chart.TimeSeries.Store(x, flatCandle)
+			chart.TimeSeries.Store(ti, flatCandle)
 		}
 	}
 	ReverseSlice(tmp)

@@ -17,29 +17,24 @@ type ChartParameters[T time.Duration | float64 | int64] struct {
 	ResidueThreshold float64
 }
 
-type ParameterOption[T time.Duration | float64 | int64] func(*ChartParameters[T])
+// type ParameterOption[T time.Duration | float64 | int64] func(*ChartParameters[T])
 
-func Resolution[T time.Duration | float64 | int64](resolution T) ParameterOption[T] {
-	return func(op *ChartParameters[T]) {
-		op.Resolution = resolution
-	}
-}
+// func ResidueThreshold[T time.Duration | float64 | int64](f float64) ParameterOption[T] {
+// 	return func(op *ChartParameters[T]) {
+// 		op.ResidueThreshold = f
+// 	}
+// }
 
-func ResidueThreshold[T time.Duration | float64 | int64](f float64) ParameterOption[T] {
-	return func(op *ChartParameters[T]) {
-		op.ResidueThreshold = f
-	}
-}
-
-func ChartParameter[T time.Duration | float64 | int64](model string, resolution T, candleNum int, ops ...ParameterOption[T]) *ChartParameters[T] {
+// func ChartParameter[T time.Duration | float64 | int64](model string, resolution T, candleNum int, ops ...ParameterOption[T]) *ChartParameters[T] {
+func ChartParameter[T time.Duration | float64 | int64](model string, resolution T, candleNum int) *ChartParameters[T] {
 	params := ChartParameters[T]{
 		mode:       c.ChartMode(strings.ToUpper(model)),
 		Resolution: resolution,
 		CandleNum:  candleNum,
 	}
-	for _, option := range ops {
-		option(&params)
-	}
+	// for _, option := range ops {
+	// 	option(&params)
+	// }
 	return &params
 }
 

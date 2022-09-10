@@ -91,9 +91,9 @@ func (chart *Chart) AddCandle(candle *Candle) {
 	}
 }
 
-func (c Chart) Serialized() []byte {
+func (c *Chart) Serialized() []byte {
 	buf := bytes.NewBuffer(nil)
-	err := gob.NewEncoder(buf).Encode(&c)
+	err := gob.NewEncoder(buf).Encode(c)
 	if err != nil {
 		panic("Failed to Serialized")
 	}
@@ -101,7 +101,7 @@ func (c Chart) Serialized() []byte {
 }
 
 func (c *Chart) Deserialized(b []byte) {
-	err := gob.NewDecoder(bytes.NewBuffer(b)).Decode(&c)
+	err := gob.NewDecoder(bytes.NewBuffer(b)).Decode(c)
 	if err != nil {
 		panic("Failed to Deserialized. " + err.Error())
 	}
