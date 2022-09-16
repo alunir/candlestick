@@ -9,7 +9,7 @@ import (
 )
 
 type CountChart struct {
-	c.Chart
+	*c.Chart
 	Chunk   int64
 	Buysell c.BuySellType
 }

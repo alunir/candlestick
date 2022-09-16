@@ -10,7 +10,7 @@ import (
 )
 
 type TimeChart struct {
-	c.Chart
+	*c.Chart
 	Resolution time.Duration
 }
 

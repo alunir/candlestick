@@ -12,7 +12,7 @@ import (
 func TestVolumeCandles(t *testing.T) {
 	candleNum := 4
 	var chart = &VolumeChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(4),
 		Buysell: candle.ALL,
 	}

@@ -11,7 +11,7 @@ import (
 func TestCountCandles(t *testing.T) {
 	candleNum := 4
 	var chart = &CountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   2,
 		Buysell: candle.ALL,
 	}

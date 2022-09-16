@@ -13,7 +13,7 @@ import (
 func TestAmountCandles(t *testing.T) {
 	candleNum := 7
 	var chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.ALL,
 	}
@@ -78,12 +78,12 @@ func TestBuySellAmountCandles(t *testing.T) {
 	t.Skip()
 	candleNum := 4
 	var b_chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.BUY,
 	}
 	var s_chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.SELL,
 	}
@@ -135,7 +135,7 @@ func TestBuyAmountOnlyCandles(t *testing.T) {
 	t.Skip()
 	candleNum := 4
 	var b_chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.BUY,
 	}
@@ -164,7 +164,7 @@ func TestBuyAmountOnlyCandles(t *testing.T) {
 func TestAMOUNTGetLastCandleClock(t *testing.T) {
 	candleNum := 4
 	var chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.ALL,
 	}
@@ -195,7 +195,7 @@ func TestAMOUNTGetLastCandleClock(t *testing.T) {
 func TestBUYAMOUNTGetLastCandleClock(t *testing.T) {
 	candleNum := 4
 	var chart = &AmountChart{
-		Chart:   *candle.NewChart(candleNum),
+		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),
 		Buysell: candle.BUY,
 	}

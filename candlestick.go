@@ -26,7 +26,7 @@ type Candlestick interface {
 }
 
 func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParameters[T]) Candlestick {
-	chart := *candle.NewChart(param.CandleNum)
+	chart := candle.NewChart(param.CandleNum)
 	switch param.mode {
 	case candle.TIME:
 		if _, ok := any(param.Resolution).(time.Duration); !ok {

@@ -10,7 +10,7 @@ import (
 func TestTimeCandles(t *testing.T) {
 	candleNum := 5
 	var chart = &TimeChart{
-		Chart:      *candle.NewChart(candleNum),
+		Chart:      candle.NewChart(candleNum),
 		Resolution: time.Minute,
 	}
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(chart.Resolution)

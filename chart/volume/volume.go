@@ -9,7 +9,7 @@ import (
 )
 
 type VolumeChart struct {
-	c.Chart
+	*c.Chart
 	Chunk   decimal.Decimal
 	Buysell c.BuySellType
 }
