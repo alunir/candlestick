@@ -9,14 +9,15 @@ import (
 
 func TestTimeCandles(t *testing.T) {
 	candleNum := 5
+	interval := time.Minute
 	var chart = &TimeChart{
 		Chart:      candle.NewChart(candleNum),
-		Resolution: time.Minute,
+		Resolution: interval,
 	}
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(chart.Resolution)
 
-	chart.AddTrade(start, 5, 1)
-	chart.AddTrade(start.Add(5*time.Second), 25, 1)
+	chart.AddTrade(start.Add(5*time.Second), 5, 1)
+	chart.AddTrade(start.Add(15*time.Second), 25, 1)
 	chart.AddTrade(start.Add(25*time.Second), 3, 1)
 
 	chart.AddTrade(start.Add(60*time.Second), 12, 5)
@@ -27,6 +28,9 @@ func TestTimeCandles(t *testing.T) {
 	// Intentionally empty data series included here, to test flat candles
 	chart.AddTrade(start.Add(240*time.Second), 15, 1)
 	chart.AddTrade(start.Add(299*time.Second), 15, 5)
+
+	// To make the candle[4], input a trade at 300s.
+	chart.AddTrade(start.Add(300*time.Second), 10, 2)
 
 	// for debug
 	// &{2009-11-10 23:30:00 +0000 UTC 5 25 3 3 3 33 3 0}
@@ -71,18 +75,18 @@ func TestTimeCandles(t *testing.T) {
 	}
 
 	// This is the Last candle. "Last" means "last traded except current candle"
-	if err := chart.LastCandle.AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+	if err := chart.LastCandle.AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
+	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(5*chart.Resolution), 10, 10, 10, 10, 2, 1); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	chart.AddTrade(start.Add(300*time.Second), 10, 2)
-	chart.AddTrade(start.Add(310*time.Second), 3, 6)
+	// To check, candles are cyclic
+	chart.AddTrade(start.Add(360*time.Second), 3, 6)
 
 	// for debug
 	// &{2009-11-10 23:31:00 +0000 UTC 12 13 12 13 7 86 2 0}

@@ -12,17 +12,17 @@ import (
 )
 
 type Candlestick interface {
-	GetLastCandleClock() chan *candle.Candle
+	GetLastCandleClock() chan candle.Candle
 	AddTrade(ti time.Time, value float64, volume float64)
 	AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64)
-	AddCandle(*candle.Candle)
-	GetLastCandle() *candle.Candle
-	GetCurrentCandle() *candle.Candle
-	GetCandles() []*candle.Candle
+	AddCandle(candle.Candle)
+	GetLastCandle() candle.Candle
+	GetCurrentCandle() candle.Candle
+	GetCandles() []candle.Candle
 	GetChartInfo() map[string]interface{}
 	Serialized() []byte
 	Deserialized([]byte)
-	SetLastCandle(candle *candle.Candle)
+	SetLastCandle(candle candle.Candle)
 }
 
 func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParameters[T]) Candlestick {
@@ -32,7 +32,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(time.Duration); !ok {
 			panic("Resolution must be time.Duration")
 		}
-		return &time_chart.TimeChart{
+		return time_chart.TimeChart{
 			Chart:      chart,
 			Resolution: time.Duration(param.Resolution),
 		}
@@ -40,7 +40,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &amount_chart.AmountChart{
+		return amount_chart.AmountChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.ALL,
@@ -49,7 +49,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &amount_chart.AmountChart{
+		return amount_chart.AmountChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.BUY,
@@ -58,7 +58,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &amount_chart.AmountChart{
+		return amount_chart.AmountChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.SELL,
@@ -67,7 +67,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &volume_chart.VolumeChart{
+		return volume_chart.VolumeChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.ALL,
@@ -76,7 +76,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &volume_chart.VolumeChart{
+		return volume_chart.VolumeChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.BUY,
@@ -85,7 +85,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
 		}
-		return &volume_chart.VolumeChart{
+		return volume_chart.VolumeChart{
 			Chart:   chart,
 			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
 			Buysell: candle.SELL,
@@ -94,7 +94,7 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 		if _, ok := any(param.Resolution).(int64); !ok {
 			panic("Resolution must be int64")
 		}
-		return &count_chart.CountChart{
+		return count_chart.CountChart{
 			Chart:   chart,
 			Chunk:   int64(param.Resolution),
 			Buysell: candle.ALL,

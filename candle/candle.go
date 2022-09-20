@@ -21,8 +21,8 @@ type Candle struct {
 	Stack  decimal.Decimal // if this touch the resolution, add a new candle.
 }
 
-func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) *Candle {
-	return &Candle{
+func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) Candle {
+	return Candle{
 		Count:  cnt,
 		Time:   ti,
 		High:   value,
@@ -35,7 +35,7 @@ func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Deci
 	}
 }
 
-func NewCandleWithBuySell(buysell BuySellType, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) *Candle {
+func NewCandleWithBuySell(buysell BuySellType, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) Candle {
 	switch buysell {
 	case ALL:
 		return NewCandle(1, ti, value, volume.Abs(), stack)
@@ -93,7 +93,7 @@ func (candle *Candle) AddCandleWithBuySell(buysell BuySellType, value decimal.De
 	}
 }
 
-func (c *Candle) AssertOhlcv(t *testing.T, ti time.Time, open, high, low, close, volume float64, count int) error {
+func (c Candle) AssertOhlcv(t *testing.T, ti time.Time, open, high, low, close, volume float64, count int) error {
 	if c.Count != count {
 		return fmt.Errorf("got wrong Count val: %v but was %v, %v", count, c.Count, c)
 	}

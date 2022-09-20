@@ -11,7 +11,7 @@ import (
 )
 
 func TestAmountCandles(t *testing.T) {
-	candleNum := 7
+	candleNum := 6
 	var chart = &AmountChart{
 		Chart:   candle.NewChart(candleNum),
 		Chunk:   decimal.NewFromInt(30),

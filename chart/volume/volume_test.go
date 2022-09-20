@@ -26,8 +26,12 @@ func TestVolumeCandles(t *testing.T) {
 	chart.AddTrade(start.Add(70*time.Second), 13, 2)
 
 	// Intentionally empty data series included here, to test flat candles
-	chart.AddTrade(start.Add(240*time.Second), 15, 5)
+	chart.AddTrade(start.Add(240*time.Second), 15, 7)
 
+	if len(chart.Candles) != candleNum {
+		t.Logf("Candles are not fulfilled. Size is %v", len(chart.Candles))
+		t.Fail()
+	}
 	if err := chart.Candles[0].AssertOhlcv(t, start, 5, 25, 3, 12, 4, 4); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
@@ -40,20 +44,16 @@ func TestVolumeCandles(t *testing.T) {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
-	if err := chart.Candles[3].AssertOhlcv(t, start.Add(240*time.Second), 15, 15, 15, 15, 3, 1); err != nil {
+	if err := chart.Candles[3].AssertOhlcv(t, start.Add(240*time.Second), 15, 15, 15, 15, 4, 1); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
-	if err := chart.LastCandle.AssertOhlcv(t, start.Add(70*time.Second), 13, 15, 13, 15, 4, 2); err != nil {
+	if err := chart.LastCandle.AssertOhlcv(t, start.Add(240*time.Second), 15, 15, 15, 15, 4, 1); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
-	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(240*time.Second), 15, 15, 15, 15, 3, 1); err != nil {
+	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(240*time.Second), 15, 15, 15, 15, 1, 1); err != nil {
 		t.Logf("test failed. %v", err)
-		t.Fail()
-	}
-	if len(chart.Candles) != candleNum {
-		t.Logf("Candles are not fulfilled. Size is %v", len(chart.Candles))
 		t.Fail()
 	}
 
@@ -79,7 +79,7 @@ func TestVolumeCandles(t *testing.T) {
 		t.Fail()
 	}
 
-	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(370*time.Second), 54, 54, 54, 54, 3, 1); err != nil {
+	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(370*time.Second), 54, 54, 54, 54, 1, 1); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}

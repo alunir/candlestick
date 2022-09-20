@@ -5,8 +5,8 @@ type RingBuffer[T any] struct {
 	outputChannel chan T
 }
 
-func NewRingBuffer[T any](inputChannel <-chan T, outputChannel chan T) *RingBuffer[T] {
-	return &RingBuffer[T]{inputChannel, outputChannel}
+func NewRingBuffer[T any](inputChannel <-chan T, outputChannel chan T) RingBuffer[T] {
+	return RingBuffer[T]{inputChannel, outputChannel}
 }
 
 func (r *RingBuffer[T]) Run() {

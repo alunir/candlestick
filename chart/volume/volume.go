@@ -14,14 +14,14 @@ type VolumeChart struct {
 	Buysell c.BuySellType
 }
 
-func (chart *VolumeChart) AddTrade(ti time.Time, value float64, volume float64) {
+func (chart VolumeChart) AddTrade(ti time.Time, value float64, volume float64) {
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
 	chart.addTradeToVolumeCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
+func (chart VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
 	currentStack := decimal.Zero
 	if chart.CurrentCandle != nil {
 		currentStack = chart.CurrentCandle.Stack
@@ -36,7 +36,7 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Dec
 		// <--Current.stack-->|<----diffStack----->
 		if chart.CurrentCandle != nil {
 			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, diffStack)
-			chart.SetLastCandle(chart.CurrentCandle)
+			chart.SetLastCandle(*chart.CurrentCandle)
 			chart.CurrentCandle = nil
 		} else {
 			panic("No need to addTradeToCandle")
@@ -57,12 +57,12 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Dec
 		// <--Current.stack-->|<--------------------diffStack----------------------------->
 		if chart.CurrentCandle != nil {
 			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack), chart.Chunk.Sub(currentStack))
-			chart.SetLastCandle(chart.CurrentCandle)
+			chart.SetLastCandle(*chart.CurrentCandle)
 			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
 		for i := 0; i < int(chunknum.IntPart()); i++ {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk, chart.Chunk))
-			chart.SetLastCandle(chart.CurrentCandle)
+			chart.SetLastCandle(*chart.CurrentCandle)
 		}
 		chart.CurrentCandle = nil
 	} else {
@@ -71,20 +71,20 @@ func (chart *VolumeChart) addTradeToVolumeCandle(ti time.Time, value decimal.Dec
 		// <--Current.stack-->|<------------diffStack------------------>
 		if chart.CurrentCandle != nil {
 			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack), chart.Chunk.Sub(currentStack))
-			chart.SetLastCandle(chart.CurrentCandle)
+			chart.SetLastCandle(*chart.CurrentCandle)
 			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
 		for i := 0; i < int(chunknum.IntPart()); i++ {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk, chart.Chunk))
-			chart.SetLastCandle(chart.CurrentCandle)
+			chart.SetLastCandle(*chart.CurrentCandle)
 		}
 		chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, remain, remain))
 	}
 }
 
-func (chart *VolumeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
+func (chart VolumeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
 
-func (chart *VolumeChart) GetChartInfo() map[string]interface{} {
+func (chart VolumeChart) GetChartInfo() map[string]interface{} {
 	return make(map[string]interface{})
 }

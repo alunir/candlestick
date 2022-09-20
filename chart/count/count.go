@@ -14,14 +14,14 @@ type CountChart struct {
 	Buysell c.BuySellType
 }
 
-func (chart *CountChart) AddTrade(ti time.Time, value float64, volume float64) {
+func (chart CountChart) AddTrade(ti time.Time, value float64, volume float64) {
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
 	chart.addTradeToCountCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart *CountChart) addTradeToCountCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
+func (chart CountChart) addTradeToCountCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
 	if chart.CurrentCandle != nil {
 		if chart.CurrentCandle.Stack.IntPart() < chart.Chunk-1 {
 			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, decimal.NewFromInt(1))
@@ -37,9 +37,9 @@ func (chart *CountChart) addTradeToCountCandle(ti time.Time, value decimal.Decim
 	}
 }
 
-func (chart *CountChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
+func (chart CountChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
 
-func (chart *CountChart) GetChartInfo() map[string]interface{} {
+func (chart CountChart) GetChartInfo() map[string]interface{} {
 	return make(map[string]interface{})
 }
