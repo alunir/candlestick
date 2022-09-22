@@ -9,8 +9,9 @@ import (
 )
 
 type Chart struct {
-	Candles          []Candle
-	TimeSeries       mapset.Set[time.Time]
+	Candles []Candle
+	// mapset.Set[time.Time] can't be compared somehow!
+	TimeSet          mapset.Set[int64]
 	LastCandle       *Candle
 	CurrentCandle    *Candle
 	CurrentCandleNew bool
@@ -19,7 +20,6 @@ type Chart struct {
 	CandleNum        int
 	in               chan Candle
 	out              chan Candle
-	buffer           RingBuffer[Candle]
 }
 
 func NewChart(candleNum int) *Chart {
@@ -28,12 +28,11 @@ func NewChart(candleNum int) *Chart {
 	buffer := NewRingBuffer(in, out)
 	go buffer.Run()
 	return &Chart{
-		CandleNum:  candleNum,
-		Candles:    make([]Candle, 0, candleNum),
-		TimeSeries: mapset.NewSet[time.Time](),
-		in:         in,
-		out:        out,
-		buffer:     buffer,
+		CandleNum: candleNum,
+		Candles:   make([]Candle, 0, candleNum),
+		TimeSet:   mapset.NewSet[int64](),
+		in:        in,
+		out:       out,
 	}
 }
 
