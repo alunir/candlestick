@@ -6,16 +6,11 @@ import (
 	"time"
 
 	"github.com/alunir/candlestick/candle"
-	"github.com/shopspring/decimal"
 )
 
 func TestVolumeCandles(t *testing.T) {
 	candleNum := 4
-	var chart = &VolumeChart{
-		Chart:   candle.NewChart(candleNum),
-		Chunk:   decimal.NewFromInt(4),
-		Buysell: candle.ALL,
-	}
+	var chart = NewVolumeChart(4.0, candle.ALL, candleNum)
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC)
 
 	chart.AddTrade(start, 5, 1)

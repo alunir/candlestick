@@ -14,6 +14,14 @@ type VolumeChart struct {
 	Buysell c.BuySellType
 }
 
+func NewVolumeChart(chunk float64, buysell c.BuySellType, candle_num int) *VolumeChart {
+	return &VolumeChart{
+		Chart:   c.NewChart(candle_num),
+		Chunk:   decimal.NewFromFloat(chunk),
+		Buysell: buysell,
+	}
+}
+
 func (chart VolumeChart) AddTrade(ti time.Time, value float64, volume float64) {
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)

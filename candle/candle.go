@@ -5,20 +5,22 @@ import (
 	"testing"
 	"time"
 
+	json "github.com/goccy/go-json"
+
 	"github.com/shopspring/decimal"
 )
 
 // Time, OHLCV,A,C
 type Candle struct {
-	Time   time.Time
-	Open   decimal.Decimal
-	High   decimal.Decimal
-	Low    decimal.Decimal
-	Close  decimal.Decimal
-	Volume decimal.Decimal
-	Amount decimal.Decimal
-	Count  int
-	Stack  decimal.Decimal // if this touch the resolution, add a new candle.
+	Time   time.Time       `json:"time"`
+	Open   decimal.Decimal `json:"open"`
+	High   decimal.Decimal `json:"high"`
+	Low    decimal.Decimal `json:"low"`
+	Close  decimal.Decimal `json:"close"`
+	Volume decimal.Decimal `json:"volume"`
+	Amount decimal.Decimal `json:"amount"`
+	Count  int             `json:"count"`
+	Stack  decimal.Decimal `json:"stack"` // if this touch the resolution, add a new candle.
 }
 
 func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) Candle {
@@ -93,6 +95,26 @@ func (candle *Candle) AddCandleWithBuySell(buysell BuySellType, value decimal.De
 	}
 }
 
+func (c Candle) Marshal() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+func (c *Candle) Unmarshal(b []byte) error {
+	return json.Unmarshal(b, c)
+}
+
+func (c Candle) Equal(c2 Candle) bool {
+	return c.Time.Equal(c2.Time) &&
+		c.Open.Equal(c2.Open) &&
+		c.High.Equal(c2.High) &&
+		c.Low.Equal(c2.Low) &&
+		c.Close.Equal(c2.Close) &&
+		c.Volume.Equal(c2.Volume) &&
+		c.Amount.Equal(c2.Amount) &&
+		c.Count == c2.Count &&
+		c.Stack.Equal(c2.Stack)
+}
+
 func (c Candle) AssertOhlcv(t *testing.T, ti time.Time, open, high, low, close, volume float64, count int) error {
 	if c.Count != count {
 		return fmt.Errorf("got wrong Count val: %v but was %v, %v", count, c.Count, c)
@@ -116,17 +138,4 @@ func (c Candle) AssertOhlcv(t *testing.T, ti time.Time, open, high, low, close, 
 		return fmt.Errorf("got wrong Time val: %v but was %v, %v", ti, c.Time, c)
 	}
 	return nil
-}
-
-func (candle *Candle) GetMap() map[string]interface{} {
-	return map[string]interface{}{
-		"timestamp": candle.Time.UnixMilli(),
-		"open":      candle.Open,
-		"close":     candle.Close,
-		"high":      candle.High,
-		"low":       candle.Low,
-		"volume":    candle.Volume,
-		"amount":    candle.Amount, // can be zero
-		"count":     float64(candle.Count),
-	}
 }

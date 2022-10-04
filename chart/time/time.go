@@ -13,7 +13,14 @@ type TimeChart struct {
 	Resolution time.Duration
 }
 
-func (chart TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
+func NewTimeChart(resolution time.Duration, candle_num int) *TimeChart {
+	return &TimeChart{
+		Chart:      c.NewChart(candle_num),
+		Resolution: resolution,
+	}
+}
+
+func (chart *TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
 	value := decimal.NewFromFloat(val)
 	volume := decimal.NewFromFloat(vol).Abs()
 
@@ -34,7 +41,7 @@ func (chart TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
 	}
 }
 
-func (chart TimeChart) backfill(x time.Time, value decimal.Decimal) {
+func (chart *TimeChart) backfill(x time.Time, value decimal.Decimal) {
 	var flatCandle c.Candle
 	var tmp []c.Candle
 
@@ -49,10 +56,10 @@ func (chart TimeChart) backfill(x time.Time, value decimal.Decimal) {
 	chart.Candles = append(chart.Candles, tmp...)[Max(len(chart.Candles)+len(tmp)-chart.CandleNum, 0):]
 }
 
-func (chart TimeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
+func (chart *TimeChart) AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64) {
 }
 
-func (chart TimeChart) GetChartInfo() map[string]interface{} {
+func (chart *TimeChart) GetChartInfo() map[string]interface{} {
 	return make(map[string]interface{})
 }
 

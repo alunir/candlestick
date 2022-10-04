@@ -8,97 +8,83 @@ import (
 	count_chart "github.com/alunir/candlestick/chart/count"
 	time_chart "github.com/alunir/candlestick/chart/time"
 	volume_chart "github.com/alunir/candlestick/chart/volume"
-	"github.com/shopspring/decimal"
 )
 
 type Candlestick interface {
 	GetLastCandleClock() chan candle.Candle
 	AddTrade(ti time.Time, value float64, volume float64)
-	AddLv2DataCallback(ti time.Time, askPrices []float64, askSizes []float64, bidPrices []float64, bidSizes []float64)
-	AddCandle(candle.Candle)
 	GetLastCandle() candle.Candle
 	GetCurrentCandle() candle.Candle
 	GetCandles() []candle.Candle
-	GetChartInfo() map[string]interface{}
-	Serialized() []byte
-	Deserialized([]byte)
+	Marshal() ([]byte, error)
+	Unmarshal([]byte) error
+	AddCandle(candle.Candle)
 	SetLastCandle(candle candle.Candle)
 }
 
 func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParameters[T]) Candlestick {
-	chart := candle.NewChart(param.CandleNum)
 	switch param.mode {
 	case candle.TIME:
-		if _, ok := any(param.Resolution).(time.Duration); !ok {
+		if resolution, ok := any(param.Resolution).(time.Duration); !ok {
 			panic("Resolution must be time.Duration")
-		}
-		return time_chart.TimeChart{
-			Chart:      chart,
-			Resolution: time.Duration(param.Resolution),
+		} else {
+			return time_chart.NewTimeChart(resolution, param.CandleNum)
 		}
 	case candle.AMOUNT:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return amount_chart.AmountChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.ALL,
+		} else {
+			return amount_chart.NewAmountChart(chunk, candle.ALL, param.CandleNum)
 		}
 	case candle.BUY_AMOUNT:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return amount_chart.AmountChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.BUY,
+		} else {
+			return amount_chart.NewAmountChart(chunk, candle.BUY, param.CandleNum)
 		}
 	case candle.SELL_AMOUNT:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return amount_chart.AmountChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.SELL,
+		} else {
+			return amount_chart.NewAmountChart(chunk, candle.SELL, param.CandleNum)
 		}
 	case candle.VOLUME:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return volume_chart.VolumeChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.ALL,
+		} else {
+			return volume_chart.NewVolumeChart(chunk, candle.ALL, param.CandleNum)
 		}
 	case candle.BUY_VOLUME:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return volume_chart.VolumeChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.BUY,
+		} else {
+			return volume_chart.NewVolumeChart(chunk, candle.BUY, param.CandleNum)
 		}
 	case candle.SELL_VOLUME:
-		if _, ok := any(param.Resolution).(float64); !ok {
+		if chunk, ok := any(param.Resolution).(float64); !ok {
 			panic("Resolution must be float64")
-		}
-		return volume_chart.VolumeChart{
-			Chart:   chart,
-			Chunk:   decimal.NewFromFloat(float64(param.Resolution)),
-			Buysell: candle.SELL,
+		} else {
+			return volume_chart.NewVolumeChart(chunk, candle.SELL, param.CandleNum)
 		}
 	case candle.COUNT:
-		if _, ok := any(param.Resolution).(int64); !ok {
-			panic("Resolution must be int64")
+		if chunk, ok := any(param.Resolution).(int64); !ok {
+			panic("Resolution must be float64")
+		} else {
+			return count_chart.NewCountChart(chunk, candle.ALL, param.CandleNum)
 		}
-		return count_chart.CountChart{
-			Chart:   chart,
-			Chunk:   int64(param.Resolution),
-			Buysell: candle.ALL,
+	case candle.BUY_COUNT:
+		if chunk, ok := any(param.Resolution).(int64); !ok {
+			panic("Resolution must be float64")
+		} else {
+			return count_chart.NewCountChart(chunk, candle.BUY, param.CandleNum)
 		}
+	case candle.SELL_COUNT:
+		if chunk, ok := any(param.Resolution).(int64); !ok {
+			panic("Resolution must be float64")
+		} else {
+			return count_chart.NewCountChart(chunk, candle.SELL, param.CandleNum)
+		}
+
 	// case candle.RATIO:
 	// 	thresholds_str := strings.Split(param.Resolution, ",")
 	// 	var thresholds []float64
@@ -122,10 +108,10 @@ func NewCandlestickChart[T time.Duration | float64 | int64](param *ChartParamete
 	// 		Thresholds:       thresholds,
 	// 		ResidueThreshold: param.ResidueThreshold,
 	// 	}
-	case candle.BUY_PRICE:
-		panic("not implemented yet")
-	case candle.SELL_PRICE:
-		panic("not implemented yet")
+	// case candle.BUY_PRICE:
+	// 	panic("not implemented yet")
+	// case candle.SELL_PRICE:
+	// 	panic("not implemented yet")
 	default:
 		panic("Invalid ChartMode")
 	}

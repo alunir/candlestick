@@ -1,11 +1,12 @@
 package candle
 
 import (
-	"bytes"
-	"encoding/gob"
+	"context"
 	"time"
 
 	mapset "github.com/deckarep/golang-set/v2"
+	json "github.com/goccy/go-json"
+	"github.com/tk42/victolinux/threadsafe"
 )
 
 type Chart struct {
@@ -25,8 +26,8 @@ type Chart struct {
 func NewChart(candleNum int) *Chart {
 	in := make(chan Candle)
 	out := make(chan Candle, candleNum)
-	buffer := NewRingBuffer(in, out)
-	go buffer.Run()
+	buffer := threadsafe.NewRingBuffer(in, out)
+	go buffer.Run(context.Background())
 	return &Chart{
 		CandleNum: candleNum,
 		Candles:   make([]Candle, 0, candleNum),
@@ -104,18 +105,10 @@ func (chart *Chart) AddCandle(candle Candle) {
 	}
 }
 
-func (c *Chart) Serialized() []byte {
-	buf := bytes.NewBuffer(nil)
-	err := gob.NewEncoder(buf).Encode(c)
-	if err != nil {
-		panic("Failed to Serialized")
-	}
-	return buf.Bytes()
+func (c Chart) Marshal() ([]byte, error) {
+	return json.Marshal(c)
 }
 
-func (c *Chart) Deserialized(b []byte) {
-	err := gob.NewDecoder(bytes.NewBuffer(b)).Decode(c)
-	if err != nil {
-		panic("Failed to Deserialized. " + err.Error())
-	}
+func (c *Chart) Unmarshal(b []byte) error {
+	return json.Unmarshal(b, c)
 }

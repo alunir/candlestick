@@ -19,7 +19,9 @@ var (
 	BUY_AMOUNT  ChartMode = "BUY_AMOUNT"
 	SELL_AMOUNT ChartMode = "SELL_AMOUNT"
 	COUNT       ChartMode = "COUNT"
+	BUY_COUNT   ChartMode = "BUY_COUNT"
+	SELL_COUNT  ChartMode = "SELL_COUNT"
 	// RATIO    ChartMode = "RATIO"
-	BUY_PRICE  ChartMode = "BUY_PRICE"
-	SELL_PRICE ChartMode = "SELL_PRICE"
+	// BUY_PRICE  ChartMode = "BUY_PRICE"
+	// SELL_PRICE ChartMode = "SELL_PRICE"
 )

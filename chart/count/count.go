@@ -14,6 +14,10 @@ type CountChart struct {
 	Buysell c.BuySellType
 }
 
+func NewCountChart(chunk int64, buysell c.BuySellType, candle_num int) *CountChart {
+	return &CountChart{c.NewChart(candle_num), chunk, buysell}
+}
+
 func (chart CountChart) AddTrade(ti time.Time, value float64, volume float64) {
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
