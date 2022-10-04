@@ -23,7 +23,7 @@ func TestNewCandlestickChart(t *testing.T) {
 	}
 }
 
-func TestMarshalUnmashal(t *testing.T) {
+func TestChartMarshalUnmashal(t *testing.T) {
 	interval := time.Minute
 	param := ChartParameter("time", interval, 5)
 	chart := NewCandlestickChart(param)

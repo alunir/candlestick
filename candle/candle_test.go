@@ -8,21 +8,21 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func TestMarshalUnmashal(t *testing.T) {
+func TestCandleMarshalUnmashal(t *testing.T) {
 	c := NewCandleWithBuySell(ALL, time.Now().Truncate(time.Nanosecond), decimal.NewFromFloat(1.0), decimal.NewFromFloat(2.0), decimal.NewFromFloat(3.0))
 
 	b, err := c.Marshal()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(string(b))
+	fmt.Println(string(b))
 
 	c2 := Candle{}
 	err = c2.Unmarshal(b)
 	if err != nil {
 		panic(err)
 	}
-	if c2.Time != c.Time {
+	if !c2.Time.Equal(c.Time) {
 		t.Errorf("time not equal. %v != %v", c2.Time, c.Time)
 		t.Fail()
 	}
