@@ -49,8 +49,39 @@ func (chart *Chart) GetCandles() []Candle {
 	return chart.Candles
 }
 
-func (chart *Chart) GetLastCandleClock() chan Candle {
+func (chart *Chart) GetLastCandleUpdate() chan Candle {
 	return chart.out
+}
+
+func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) chan Candle {
+	ticker := time.NewTicker(interval)
+	ch := make(chan Candle)
+	go func(ctx context.Context) {
+		var last *Candle
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if chart.LastCandle == nil {
+					continue
+				}
+				c := chart.LastCandle
+				if c == last {
+					c = &Candle{
+						Time:  c.Time.Add(interval),
+						Open:  c.Close,
+						High:  c.Close,
+						Low:   c.Close,
+						Close: c.Close,
+					}
+				}
+				ch <- *c
+				last = c
+			}
+		}
+	}(ctx)
+	return ch
 }
 
 func (chart *Chart) SetLastCandle(candle Candle) {

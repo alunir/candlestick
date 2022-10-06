@@ -175,7 +175,7 @@ func TestAMOUNTGetLastCandleClock(t *testing.T) {
 	go func(ctx context.Context) {
 		for {
 			select {
-			case lastCandle := <-chart.GetLastCandleClock():
+			case lastCandle := <-chart.GetLastCandleUpdate():
 				fmt.Printf("lastCandle is updated: %v\n", lastCandle)
 			}
 		}
@@ -206,7 +206,7 @@ func TestBUYAMOUNTGetLastCandleClock(t *testing.T) {
 	go func(ctx context.Context) {
 		for {
 			select {
-			case lastCandle := <-chart.GetLastCandleClock():
+			case lastCandle := <-chart.GetLastCandleUpdate():
 				fmt.Printf("lastCandle is updated: %v\n", lastCandle)
 			}
 		}

@@ -1,6 +1,7 @@
 package candlestick
 
 import (
+	"context"
 	"time"
 
 	candle "github.com/alunir/candlestick/candle"
@@ -11,7 +12,8 @@ import (
 )
 
 type Candlestick interface {
-	GetLastCandleClock() chan candle.Candle
+	GetLastCandleUpdate() chan candle.Candle
+	GetCandleClock(context.Context, time.Duration) chan candle.Candle
 	AddTrade(ti time.Time, value float64, volume float64)
 	GetLastCandle() candle.Candle
 	GetCurrentCandle() candle.Candle
