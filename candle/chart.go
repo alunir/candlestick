@@ -6,6 +6,7 @@ import (
 
 	mapset "github.com/deckarep/golang-set/v2"
 	json "github.com/goccy/go-json"
+	"github.com/shopspring/decimal"
 	"github.com/tk42/victolinux/threadsafe"
 )
 
@@ -69,11 +70,14 @@ func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) 
 				c := chart.LastCandle
 				if c == last {
 					c = &Candle{
-						Time:  c.Time.Add(interval),
-						Open:  c.Close,
-						High:  c.Close,
-						Low:   c.Close,
-						Close: c.Close,
+						Time:   c.Time.Add(interval),
+						Open:   c.Close,
+						High:   c.Close,
+						Low:    c.Close,
+						Close:  c.Close,
+						Volume: decimal.Zero,
+						Amount: decimal.Zero,
+						Count:  0,
 					}
 				}
 				ch <- *c
