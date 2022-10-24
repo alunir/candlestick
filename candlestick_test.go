@@ -17,9 +17,11 @@ func TestNewCandlestickChart(t *testing.T) {
 	chart.AddTrade(start.Add(59*time.Second), 3, 1)
 	chart.AddTrade(start.Add(interval), 25, 1)
 
-	if err := chart.GetLastCandle().AssertOhlcv(t, start.Truncate(interval), 5, 25, 3, 3, 3, 3); err != nil {
-		t.Logf("test failed. %v", err)
-		t.Fail()
+	if c, ok := chart.GetLastCandle(); ok {
+		if err := c.AssertOhlcv(t, start.Truncate(interval), 5, 25, 3, 3, 3, 3); err != nil {
+			t.Logf("test failed. %v", err)
+			t.Fail()
+		}
 	}
 }
 
@@ -46,12 +48,16 @@ func TestChartMarshalUnmashal(t *testing.T) {
 		panic(err)
 	}
 
-	if !chart.GetLastCandle().Equal(chart.GetLastCandle()) {
+	lc, _ := chart.GetLastCandle()
+	lc2, _ := chart2.GetLastCandle()
+	cc, _ := chart.GetCurrentCandle()
+	cc2, _ := chart2.GetCurrentCandle()
+	if !lc.Equal(lc2) {
 		t.Errorf("last candle not equal. %v != %v", chart2, chart)
 		t.Fail()
 	}
 
-	if !chart.GetCurrentCandle().Equal(chart.GetCurrentCandle()) {
+	if !cc.Equal(cc2) {
 		t.Errorf("current candle not equal. %v != %v", chart2, chart)
 		t.Fail()
 	}

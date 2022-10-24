@@ -20,7 +20,10 @@ func NewTimeChart(resolution time.Duration, candle_num int) *TimeChart {
 	}
 }
 
-func (chart *TimeChart) AddTrade(ti time.Time, val float64, vol float64) {
+func (chart *TimeChart) AddTrade(ti time.Time, val, vol float64) {
+	chart.Lock()
+	defer chart.Unlock()
+
 	value := decimal.NewFromFloat(val)
 	volume := decimal.NewFromFloat(vol).Abs()
 

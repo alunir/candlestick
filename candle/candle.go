@@ -12,20 +12,19 @@ import (
 
 // Time, OHLCV,A,C
 type Candle struct {
-	Time   time.Time       `json:"time"`
-	Open   decimal.Decimal `json:"open"`
-	High   decimal.Decimal `json:"high"`
-	Low    decimal.Decimal `json:"low"`
-	Close  decimal.Decimal `json:"close"`
-	Volume decimal.Decimal `json:"volume"`
-	Amount decimal.Decimal `json:"amount"`
-	Count  int             `json:"count"`
-	Stack  decimal.Decimal `json:"stack"` // if this touch the resolution, add a new candle.
+	Time   time.Time
+	Open   decimal.Decimal
+	High   decimal.Decimal
+	Low    decimal.Decimal
+	Close  decimal.Decimal
+	Volume decimal.Decimal
+	Amount decimal.Decimal
+	Count  int
+	Stack  decimal.Decimal // if this touch the resolution, add a new candle.
 }
 
-func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) Candle {
+func NewCandle(cnt int, ti time.Time, value, volume, stack decimal.Decimal) Candle {
 	return Candle{
-		Count:  cnt,
 		Time:   ti,
 		High:   value,
 		Low:    value,
@@ -33,11 +32,12 @@ func NewCandle(cnt int, ti time.Time, value decimal.Decimal, volume decimal.Deci
 		Close:  value,
 		Volume: volume,
 		Amount: value.Mul(volume),
+		Count:  cnt,
 		Stack:  stack.Abs(),
 	}
 }
 
-func NewCandleWithBuySell(buysell BuySellType, ti time.Time, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) Candle {
+func NewCandleWithBuySell(buysell BuySellType, ti time.Time, value, volume, stack decimal.Decimal) Candle {
 	switch buysell {
 	case ALL:
 		return NewCandle(1, ti, value, volume.Abs(), stack)
@@ -58,7 +58,7 @@ func NewCandleWithBuySell(buysell BuySellType, ti time.Time, value decimal.Decim
 	}
 }
 
-func (candle *Candle) add(value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) {
+func (candle *Candle) add(value, volume, stack decimal.Decimal) {
 	if value.GreaterThan(candle.High) {
 		candle.High = value
 	} else if value.LessThan(candle.Low) {
@@ -76,7 +76,7 @@ func (candle *Candle) addStack(stack decimal.Decimal) {
 	candle.Stack = candle.Stack.Add(stack).Abs()
 }
 
-func (candle *Candle) AddCandleWithBuySell(buysell BuySellType, value decimal.Decimal, volume decimal.Decimal, stack decimal.Decimal) {
+func (candle *Candle) AddCandleWithBuySell(buysell BuySellType, value, volume, stack decimal.Decimal) {
 	switch buysell {
 	case ALL:
 		candle.add(value, volume.Abs(), stack)

@@ -2,6 +2,7 @@ package candle
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	mapset "github.com/deckarep/golang-set/v2"
@@ -11,6 +12,7 @@ import (
 )
 
 type Chart struct {
+	m       *sync.RWMutex
 	Candles []Candle
 	// mapset.Set[time.Time] can't be compared somehow!
 	TimeSet          mapset.Set[int64]
@@ -30,6 +32,7 @@ func NewChart(candleNum int) *Chart {
 	buffer := threadsafe.NewRingBuffer(in, out)
 	go buffer.Run(context.Background())
 	return &Chart{
+		m:         new(sync.RWMutex),
 		CandleNum: candleNum,
 		Candles:   make([]Candle, 0, candleNum),
 		TimeSet:   mapset.NewSet[int64](),
@@ -38,12 +41,30 @@ func NewChart(candleNum int) *Chart {
 	}
 }
 
-func (chart *Chart) GetLastCandle() Candle {
-	return *chart.LastCandle
+func (chart *Chart) Lock() {
+	chart.m.Lock()
 }
 
-func (chart *Chart) GetCurrentCandle() Candle {
-	return *chart.CurrentCandle
+func (chart *Chart) Unlock() {
+	chart.m.Unlock()
+}
+
+func (chart *Chart) GetLastCandle() (Candle, bool) {
+	chart.m.RLock()
+	defer chart.m.RUnlock()
+	if chart.LastCandle != nil {
+		return *chart.LastCandle, true
+	} else {
+		return Candle{}, false
+	}
+}
+
+func (chart *Chart) GetCurrentCandle() (Candle, bool) {
+	if chart.CurrentCandle != nil {
+		return *chart.CurrentCandle, true
+	} else {
+		return Candle{}, false
+	}
 }
 
 func (chart *Chart) GetCandles() []Candle {
@@ -64,24 +85,21 @@ func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) 
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				if chart.LastCandle == nil {
+				c, ok := chart.GetLastCandle()
+				if !ok {
 					continue
+				} else if last != nil && c == *last {
+					c.Time = c.Time.Add(interval)
+					c.Open = last.Close
+					c.High = last.Close
+					c.Low = last.Close
+					c.Close = last.Close
+					c.Volume = decimal.Zero
+					c.Amount = decimal.Zero
+					c.Count = 0
 				}
-				c := chart.LastCandle
-				if c == last {
-					c = &Candle{
-						Time:   c.Time.Add(interval),
-						Open:   c.Close,
-						High:   c.Close,
-						Low:    c.Close,
-						Close:  c.Close,
-						Volume: decimal.Zero,
-						Amount: decimal.Zero,
-						Count:  0,
-					}
-				}
-				ch <- *c
-				last = c
+				ch <- c
+				last = &c
 			}
 		}
 	}(ctx)
@@ -140,7 +158,7 @@ func (chart *Chart) AddCandle(candle Candle) {
 	}
 }
 
-func (c Chart) Marshal() ([]byte, error) {
+func (c *Chart) Marshal() ([]byte, error) {
 	return json.Marshal(c)
 }
 

@@ -23,13 +23,16 @@ func NewAmountChart(chunk float64, buysell c.BuySellType, candle_num int) *Amoun
 }
 
 func (chart AmountChart) AddTrade(ti time.Time, value float64, volume float64) {
+	chart.Lock()
+	defer chart.Unlock()
+
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
 	chart.addTradeToAmountCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
+func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value, volume decimal.Decimal) {
 	currentStack := decimal.Zero
 	if chart.CurrentCandle != nil {
 		currentStack = chart.CurrentCandle.Stack

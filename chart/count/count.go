@@ -18,14 +18,17 @@ func NewCountChart(chunk int64, buysell c.BuySellType, candle_num int) *CountCha
 	return &CountChart{c.NewChart(candle_num), chunk, buysell}
 }
 
-func (chart CountChart) AddTrade(ti time.Time, value float64, volume float64) {
+func (chart CountChart) AddTrade(ti time.Time, value, volume float64) {
+	chart.Lock()
+	defer chart.Unlock()
+
 	if chart.Buysell == c.ALL {
 		volume = math.Abs(volume)
 	}
 	chart.addTradeToCountCandle(ti, decimal.NewFromFloat(value), decimal.NewFromFloat(volume))
 }
 
-func (chart CountChart) addTradeToCountCandle(ti time.Time, value decimal.Decimal, volume decimal.Decimal) {
+func (chart CountChart) addTradeToCountCandle(ti time.Time, value, volume decimal.Decimal) {
 	if chart.CurrentCandle != nil {
 		if chart.CurrentCandle.Stack.IntPart() < chart.Chunk-1 {
 			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, decimal.NewFromInt(1))

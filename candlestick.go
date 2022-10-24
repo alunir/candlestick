@@ -15,8 +15,8 @@ type Candlestick interface {
 	GetLastCandleUpdate() chan candle.Candle
 	GetCandleClock(context.Context, time.Duration) chan candle.Candle
 	AddTrade(ti time.Time, value float64, volume float64)
-	GetLastCandle() candle.Candle
-	GetCurrentCandle() candle.Candle
+	GetLastCandle() (candle.Candle, bool)
+	GetCurrentCandle() (candle.Candle, bool)
 	GetCandles() []candle.Candle
 	Marshal() ([]byte, error)
 	Unmarshal([]byte) error
