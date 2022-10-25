@@ -7,7 +7,6 @@ import (
 
 	mapset "github.com/deckarep/golang-set/v2"
 	json "github.com/goccy/go-json"
-	"github.com/shopspring/decimal"
 	"github.com/tk42/victolinux/threadsafe"
 )
 
@@ -68,6 +67,8 @@ func (chart *Chart) GetCurrentCandle() (Candle, bool) {
 }
 
 func (chart *Chart) GetCandles() []Candle {
+	chart.m.RLock()
+	defer chart.m.RUnlock()
 	return chart.Candles
 }
 
@@ -89,24 +90,23 @@ func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) 
 				if !ok {
 					continue
 				}
+				// MEMO: MarketData is arrived with the delay.
+				// ~ So we can't handle the case that the candle is not updated.
+				// Even if the interval was appended to Time,
+				// the created candle would not be known how much the market data will be delayed.
+				// Therefore we create a candle whenerver the market data is updated.
+
 				// TODO: Fix when AMOUNT/VOLUME clock is implemented
-				current := c.Time.Truncate(interval)
-				if current.Equal(last.Time) {
-					lastPrice := last.Close.Copy()
-					c = Candle{
-						Time:   c.Time.Add(interval),
-						Open:   lastPrice,
-						High:   lastPrice,
-						Low:    lastPrice,
-						Close:  lastPrice,
-						Volume: decimal.Zero,
-						Amount: decimal.Zero,
-						Count:  0,
+				if c.Time.Equal(last.Time) {
+					continue
+				}
+				for _, p := range chart.GetCandles() {
+					if p.Time.After(last.Time) && !p.Time.After(c.Time) {
+						ch <- p
 					}
 				}
-				ch <- c
+
 				last = c.Copy()
-				last.Time = current
 			}
 		}
 	}(ctx, interval)
