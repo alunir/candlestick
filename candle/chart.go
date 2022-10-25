@@ -76,10 +76,10 @@ func (chart *Chart) GetLastCandleUpdate() chan Candle {
 }
 
 func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) chan Candle {
-	ticker := time.NewTicker(interval)
 	ch := make(chan Candle)
-	go func(ctx context.Context) {
-		var last *Candle
+	go func(ctx context.Context, interval time.Duration) {
+		var last Candle
+		ticker := time.NewTicker(interval)
 		for {
 			select {
 			case <-ctx.Done():
@@ -88,21 +88,28 @@ func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) 
 				c, ok := chart.GetLastCandle()
 				if !ok {
 					continue
-				} else if last != nil && c == *last {
-					c.Time = c.Time.Add(interval)
-					c.Open = last.Close
-					c.High = last.Close
-					c.Low = last.Close
-					c.Close = last.Close
-					c.Volume = decimal.Zero
-					c.Amount = decimal.Zero
-					c.Count = 0
+				}
+				// TODO: Fix when AMOUNT/VOLUME clock is implemented
+				current := c.Time.Truncate(interval)
+				if current.Equal(last.Time) {
+					lastPrice := last.Close.Copy()
+					c = Candle{
+						Time:   c.Time.Add(interval),
+						Open:   lastPrice,
+						High:   lastPrice,
+						Low:    lastPrice,
+						Close:  lastPrice,
+						Volume: decimal.Zero,
+						Amount: decimal.Zero,
+						Count:  0,
+					}
 				}
 				ch <- c
-				last = &c
+				last = c.Copy()
+				last.Time = current
 			}
 		}
-	}(ctx)
+	}(ctx, interval)
 	return ch
 }
 

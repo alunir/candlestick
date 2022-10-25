@@ -103,6 +103,24 @@ func (c *Candle) Unmarshal(b []byte) error {
 	return json.Unmarshal(b, c)
 }
 
+func (c Candle) IsZero() bool {
+	return c.Time.IsZero() // satisfied?
+}
+
+func (c Candle) Copy() Candle {
+	return Candle{
+		Time:   c.Time,
+		Open:   c.Open.Copy(),
+		High:   c.High.Copy(),
+		Low:    c.Low.Copy(),
+		Close:  c.Close.Copy(),
+		Volume: c.Volume.Copy(),
+		Amount: c.Amount.Copy(),
+		Count:  c.Count,
+		Stack:  c.Stack.Copy(),
+	}
+}
+
 func (c Candle) Equal(c2 Candle) bool {
 	return c.Time.Equal(c2.Time) &&
 		c.Open.Equal(c2.Open) &&
