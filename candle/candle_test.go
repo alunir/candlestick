@@ -22,12 +22,16 @@ func TestCandleMarshalUnmashal(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	if !c2.Time.Equal(c.Time) {
-		t.Errorf("time not equal. %v != %v", c2.Time, c.Time)
+	if !c2.OpenTime.Equal(c.OpenTime) {
+		t.Errorf("open time not equal. %v != %v", c2.OpenTime, c.OpenTime)
 		t.Fail()
 	}
 	if !c2.Open.Equal(c.Open) {
 		t.Errorf("open not equal. %v != %v", c2.Open, c.Open)
+		t.Fail()
+	}
+	if !c2.HighTime.Equal(c.HighTime) {
+		t.Errorf("high time not equal. %v != %v", c2.HighTime, c.HighTime)
 		t.Fail()
 	}
 	if !c2.High.Equal(c.High) {
@@ -38,8 +42,16 @@ func TestCandleMarshalUnmashal(t *testing.T) {
 		t.Errorf("low not equal. %v != %v", c2.Low, c.Low)
 		t.Fail()
 	}
+	if !c2.LowTime.Equal(c.LowTime) {
+		t.Errorf("low time not equal. %v != %v", c2.LowTime, c.LowTime)
+		t.Fail()
+	}
 	if !c2.Close.Equal(c.Close) {
 		t.Errorf("close not equal. %v != %v", c2.Close, c.Close)
+		t.Fail()
+	}
+	if !c2.CloseTime.Equal(c.CloseTime) {
+		t.Errorf("close time not equal. %v != %v", c2.CloseTime, c.CloseTime)
 		t.Fail()
 	}
 	if !c2.Volume.Equal(c.Volume) {

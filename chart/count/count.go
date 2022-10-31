@@ -31,7 +31,7 @@ func (chart CountChart) AddTrade(ti time.Time, value, volume float64) {
 func (chart CountChart) addTradeToCountCandle(ti time.Time, value, volume decimal.Decimal) {
 	if chart.CurrentCandle != nil {
 		if chart.CurrentCandle.Stack.IntPart() < chart.Chunk-1 {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, decimal.NewFromInt(1))
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, ti, value, volume, decimal.NewFromInt(1))
 			chart.CurrentCandleNew = false
 		} else {
 			candle := c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, decimal.Zero) // reset the counter

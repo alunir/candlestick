@@ -16,21 +16,21 @@ func TestTimeCandles(t *testing.T) {
 	}
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(chart.Resolution)
 
-	chart.AddTrade(start.Add(5*time.Second), 5, 1)
-	chart.AddTrade(start.Add(15*time.Second), 25, 1)
-	chart.AddTrade(start.Add(25*time.Second), 3, 1)
+	chart.AddTrade(start.Add(5*time.Second), 5, 1)   // open0
+	chart.AddTrade(start.Add(15*time.Second), 25, 1) // high0
+	chart.AddTrade(start.Add(25*time.Second), 3, 1)  // low0 close0
 
-	chart.AddTrade(start.Add(60*time.Second), 12, 5)
-	chart.AddTrade(start.Add(119*time.Second), 13, 2)
+	chart.AddTrade(start.Add(60*time.Second), 12, 5)  // open1 low1
+	chart.AddTrade(start.Add(119*time.Second), 13, 2) // high1 close1 ohlc2 ohlc3
 
 	// 120-179, 180-239: No trade.
 
 	// Intentionally empty data series included here, to test flat candles
-	chart.AddTrade(start.Add(240*time.Second), 15, 1)
-	chart.AddTrade(start.Add(299*time.Second), 15, 5)
+	chart.AddTrade(start.Add(240*time.Second), 15, 1) // open4 low4 high4
+	chart.AddTrade(start.Add(299*time.Second), 15, 5) // close4
 
 	// To make the candle[4], input a trade at 300s.
-	chart.AddTrade(start.Add(300*time.Second), 10, 2)
+	chart.AddTrade(start.Add(300*time.Second), 10, 2) // ohlcv-current
 
 	// for debug
 	// &{2009-11-10 23:30:00 +0000 UTC 5 25 3 3 3 33 3 0}
@@ -49,38 +49,52 @@ func TestTimeCandles(t *testing.T) {
 		t.Fail()
 	}
 
-	if err := chart.Candles[0].AssertOhlcv(t, start, 5, 25, 3, 3, 3, 3); err != nil {
+	if err := chart.Candles[0].AssertOhlcv(t,
+		start, start.Add(15*time.Second), start.Add(25*time.Second), start.Add(25*time.Second),
+		5, 25, 3, 3, 3, 3); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.Candles[1].AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+	if err := chart.Candles[1].AssertOhlcv(t,
+		start.Add(interval), start.Add(119*time.Second), start.Add(interval), start.Add(119*time.Second),
+		12, 13, 12, 13, 7, 2); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.Candles[2].AssertOhlcv(t, start.Add(2*chart.Resolution), 13, 13, 13, 13, 0, 0); err != nil {
+	if err := chart.Candles[2].AssertOhlcv(t,
+		start.Add(2*interval), start.Add(2*interval), start.Add(2*interval), start.Add(2*interval),
+		13, 13, 13, 13, 0, 0); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.Candles[3].AssertOhlcv(t, start.Add(3*chart.Resolution), 13, 13, 13, 13, 0, 0); err != nil {
+	if err := chart.Candles[3].AssertOhlcv(t,
+		start.Add(3*interval), start.Add(3*interval), start.Add(3*interval), start.Add(3*interval),
+		13, 13, 13, 13, 0, 0); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.Candles[4].AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
+	if err := chart.Candles[4].AssertOhlcv(t,
+		start.Add(4*interval), start.Add(4*interval), start.Add(4*interval), start.Add(299*time.Second),
+		15, 15, 15, 15, 6, 2); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
 	// This is the Last candle. "Last" means "last traded except current candle"
-	if err := chart.LastCandle.AssertOhlcv(t, start.Add(4*chart.Resolution), 15, 15, 15, 15, 6, 2); err != nil {
+	if err := chart.LastCandle.AssertOhlcv(t,
+		start.Add(4*interval), start.Add(4*interval), start.Add(4*interval), start.Add(299*time.Second),
+		15, 15, 15, 15, 6, 2); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
 
-	if err := chart.CurrentCandle.AssertOhlcv(t, start.Add(5*chart.Resolution), 10, 10, 10, 10, 2, 1); err != nil {
+	if err := chart.CurrentCandle.AssertOhlcv(t,
+		start.Add(5*interval), start.Add(5*interval), start.Add(5*interval), start.Add(5*interval),
+		10, 10, 10, 10, 2, 1); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
@@ -99,7 +113,9 @@ func TestTimeCandles(t *testing.T) {
 	// 	fmt.Printf("%v\n", c)
 	// }
 
-	if err := chart.Candles[0].AssertOhlcv(t, start.Add(chart.Resolution), 12, 13, 12, 13, 7, 2); err != nil {
+	if err := chart.Candles[0].AssertOhlcv(t,
+		start.Add(interval), start.Add(119*time.Second), start.Add(interval), start.Add(119*time.Second),
+		12, 13, 12, 13, 7, 2); err != nil {
 		t.Logf("test failed. %v", err)
 		t.Fail()
 	}
