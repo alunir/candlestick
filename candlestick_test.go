@@ -13,12 +13,14 @@ func TestNewCandlestickChart(t *testing.T) {
 
 	var start = time.Date(2009, time.November, 10, 23, 30, 5, 0, time.UTC).Truncate(interval)
 	chart.AddTrade(start.Add(time.Second), 5, 1)
-	chart.AddTrade(start.Add(5*time.Second), 25, 1)
-	chart.AddTrade(start.Add(59*time.Second), 3, 1)
+	chart.AddTrade(start.Add(5*time.Second), 25, 1) // high
+	chart.AddTrade(start.Add(59*time.Second), 3, 1) // low close
 	chart.AddTrade(start.Add(interval), 25, 1)
 
 	if c, ok := chart.GetLastCandle(); ok {
-		if err := c.AssertOhlcv(t, start.Truncate(interval), 5, 25, 3, 3, 3, 3); err != nil {
+		if err := c.AssertOhlcv(t,
+			start, start.Add(5*time.Second), start.Add(59*time.Second), start.Add(59*time.Second),
+			5, 25, 3, 3, 3, 3); err != nil {
 			t.Logf("test failed. %v", err)
 			t.Fail()
 		}

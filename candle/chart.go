@@ -76,6 +76,10 @@ func (chart *Chart) GetLastCandleUpdate() chan Candle {
 	return chart.out
 }
 
+func (chart *Chart) EqualCondition(candle, last Candle) {
+	chart.LastCandle = &candle
+}
+
 func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) chan Candle {
 	ch := make(chan Candle)
 	go func(ctx context.Context, interval time.Duration) {
@@ -97,11 +101,11 @@ func (chart *Chart) GetCandleClock(ctx context.Context, interval time.Duration) 
 				// Therefore we create a candle whenerver the market data is updated.
 
 				// TODO: Fix when AMOUNT/VOLUME clock is implemented
-				if c.Time.Equal(last.Time) {
+				if c.OpenTime.Equal(last.OpenTime) {
 					continue
 				}
 				for _, p := range chart.GetCandles() {
-					if p.Time.After(last.Time) && !p.Time.After(c.Time) {
+					if p.OpenTime.After(last.OpenTime) && !p.OpenTime.After(c.OpenTime) {
 						ch <- p
 					}
 				}
@@ -158,10 +162,10 @@ func (chart *Chart) AddCandle(candle Candle) {
 	// 	chart.Candles = append(chart.Candles[1:chart.CandleNum:chart.CandleNum], candle)
 	// }
 
-	if candle.Time.Before(chart.StartTime) {
-		chart.StartTime = candle.Time
-	} else if candle.Time.After(chart.EndTime) {
-		chart.EndTime = candle.Time
+	if candle.OpenTime.Before(chart.StartTime) {
+		chart.StartTime = candle.OpenTime
+	} else if candle.OpenTime.After(chart.EndTime) {
+		chart.EndTime = candle.OpenTime
 	}
 }
 

@@ -30,12 +30,12 @@ func (chart *TimeChart) AddTrade(ti time.Time, val, vol float64) {
 	x := ti.Truncate(chart.Resolution)
 
 	if chart.TimeSet.Contains(x.Unix()) {
-		chart.CurrentCandle.AddCandleWithBuySell(c.ALL, value, volume, decimal.Zero) // MEMO: no meaning for stack
+		chart.CurrentCandle.AddCandleWithBuySell(c.ALL, ti, value, volume, decimal.Zero) // MEMO: no meaning for stack
 		chart.CurrentCandleNew = false
 	} else {
 		candle := c.NewCandleWithBuySell(c.ALL, x, value, volume, decimal.Zero) // MEMO: no meaning for stack
 		chart.SetLastCandle(candle)
-		if x.After(chart.LastCandle.Time.Add(chart.Resolution)) {
+		if x.After(chart.LastCandle.OpenTime.Add(chart.Resolution)) {
 			chart.backfill(x, chart.LastCandle.Close)
 		}
 		chart.AddCandle(candle)
@@ -48,7 +48,7 @@ func (chart *TimeChart) backfill(x time.Time, value decimal.Decimal) {
 	var flatCandle c.Candle
 	var tmp []c.Candle
 
-	for ti := x.Add(-chart.Resolution); !ti.Equal(chart.LastCandle.Time); ti = ti.Add(-chart.Resolution) {
+	for ti := x.Add(-chart.Resolution); !ti.Equal(chart.LastCandle.OpenTime); ti = ti.Add(-chart.Resolution) {
 		if ok := chart.TimeSet.Contains(ti.Unix()); !ok {
 			flatCandle = c.NewCandle(0, ti, value, decimal.Zero, decimal.Zero)
 			tmp = append(tmp, flatCandle)

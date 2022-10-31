@@ -46,7 +46,7 @@ func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value, volume deci
 		// |------------------|-------------------|
 		// <--Current.stack-->|<----diffStack----->
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, diffStack)
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, ti, value, volume, diffStack)
 			chart.SetLastCandle(*chart.CurrentCandle)
 			chart.CurrentCandle = nil
 		} else {
@@ -57,7 +57,7 @@ func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value, volume deci
 		// |------------------|-------------------|
 		// <--Current.stack-->|<--diffStack-->
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, volume, diffStack)
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, ti, value, volume, diffStack)
 			chart.CurrentCandleNew = false
 		} else {
 			chart.AddCandle(c.NewCandleWithBuySell(chart.Buysell, ti, value, volume, diffStack))
@@ -67,7 +67,7 @@ func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value, volume deci
 		// |------------------|-------------------|---------------------------------------|
 		// <--Current.stack-->|<--------------------diffStack----------------------------->
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack).Div(value), chart.Chunk.Sub(currentStack))
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk.Sub(currentStack).Div(value), chart.Chunk.Sub(currentStack))
 			chart.SetLastCandle(*chart.CurrentCandle)
 			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
@@ -81,7 +81,7 @@ func (chart AmountChart) addTradeToAmountCandle(ti time.Time, value, volume deci
 		// |------------------|-------------------|---------------------------------------|
 		// <--Current.stack-->|<------------diffStack------------------>
 		if chart.CurrentCandle != nil {
-			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, value, chart.Chunk.Sub(currentStack).Div(value), chart.Chunk.Sub(currentStack))
+			chart.CurrentCandle.AddCandleWithBuySell(chart.Buysell, ti, value, chart.Chunk.Sub(currentStack).Div(value), chart.Chunk.Sub(currentStack))
 			chart.SetLastCandle(*chart.CurrentCandle)
 			chunknum = chunknum.Sub(decimal.NewFromInt(1))
 		}
